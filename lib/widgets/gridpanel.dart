@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 
@@ -20,6 +22,35 @@ class _GridPanelState extends State<GridPanel> {
       });
     }
 
+    void playButton() {
+      table[0][4] = 1;
+      table[0][5] = 1;
+      table[1][4] = 1;
+      table[1][5] = 1;
+      var plusOne = 0;
+      Timer.periodic(Duration(milliseconds: 100), (timer) {
+        if (plusOne != 0) {
+          table[plusOne - 1][4] = 0;
+          table[plusOne - 1][5] = 0;
+        }
+
+        table[plusOne][4] = 1;
+        table[plusOne][5] = 1;
+        table[plusOne + 1][4] = 1;
+        table[plusOne + 1][5] = 1;
+
+        refresh();
+
+        plusOne++;
+        //collision checker
+        if (plusOne == 19 || table[plusOne + 1][4] == 1) {
+          timer.cancel();
+          playButton();
+        }
+      });
+      //print(table);
+    }
+
     setState(() {
       a = buildTable(table);
     });
@@ -29,11 +60,11 @@ class _GridPanelState extends State<GridPanel> {
         a,
         TextButton(
             onPressed: () {
-              table[8][0] = 1;
-              table[2][07] = 1;
-              refresh();
+              playButton();
             },
-            child: Text('press me'))
+            child: Text('Play')),
+        TextButton(onPressed: () {}, child: Text('Left')),
+        TextButton(onPressed: () {}, child: Text('Right'))
       ],
     );
   }
