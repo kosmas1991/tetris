@@ -15,11 +15,11 @@ class Piece {
 }
 
 // O
-Piece omikron =
+Piece Omikron =
     Piece(part1: [0, 4], part2: [0, 5], part3: [1, 4], part4: [1, 5]);
 
 // I
-Piece giota = Piece(part1: [0, 3], part2: [0, 4], part3: [0, 5], part4: [0, 6]);
+Piece Giota = Piece(part1: [0, 3], part2: [0, 4], part3: [0, 5], part4: [0, 6]);
 
 // L
 Piece Lamda = Piece(part1: [0, 4], part2: [1, 4], part3: [2, 4], part4: [2, 5]);
@@ -35,3 +35,5 @@ Piece Zetta = Piece(part1: [0, 4], part2: [0, 5], part3: [1, 5], part4: [1, 6]);
 
 // T
 Piece Taf = Piece(part1: [0, 4], part2: [1, 3], part3: [1, 4], part4: [1, 5]);
+
+List<Piece> allThePieces = [Omikron, Giota, Lamda, Jey, Sigma, Zetta, Taf];

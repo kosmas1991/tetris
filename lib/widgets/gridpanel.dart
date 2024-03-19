@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:tetris/models/piece.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 
 class GridPanel extends StatefulWidget {
@@ -11,63 +13,219 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
+  Random rand = Random();
+  @override
+  void initState() {
+    //setCurrentPiece();
+    super.initState();
+  }
+
+  Column daUI = Column();
   var table = table_var.table;
-  Column a = Column();
+  var table2 = table_var.table;
+
+  Piece currentPiece = Omikron; //dummy data
+  List<List<int>> currentPiecePosition = [
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+  ]; //dummy data
 
   @override
   Widget build(BuildContext context) {
-    void refresh() {
-      setState(() {
-        a = buildTable(table);
-      });
-    }
-
-    void playButton() {
-      table[0][4] = 1;
-      table[0][5] = 1;
-      table[1][4] = 1;
-      table[1][5] = 1;
-      var plusOne = 0;
-      Timer.periodic(Duration(milliseconds: 100), (timer) {
-        if (plusOne != 0) {
-          table[plusOne - 1][4] = 0;
-          table[plusOne - 1][5] = 0;
-        }
-
-        table[plusOne][4] = 1;
-        table[plusOne][5] = 1;
-        table[plusOne + 1][4] = 1;
-        table[plusOne + 1][5] = 1;
-
-        refresh();
-
-        plusOne++;
-        //collision checker
-        if (plusOne == 19 || table[plusOne + 1][4] == 1) {
-          timer.cancel();
-          playButton();
-        }
-      });
-      //print(table);
-    }
-
     setState(() {
-      a = buildTable(table);
+      daUI = buildTable(table);
     });
 
     return Column(
       children: [
-        a,
+        daUI,
         TextButton(
             onPressed: () {
-              playButton();
+              start();
             },
-            child: Text('Play')),
-        TextButton(onPressed: () {}, child: Text('Left')),
-        TextButton(onPressed: () {}, child: Text('Right'))
+            child: Text('Start')),
+        TextButton(
+            onPressed: () {
+              movePieceLeft();
+            },
+            child: Text('Left')),
+        TextButton(
+            onPressed: () {
+              movePieceRight();
+            },
+            child: Text('Right'))
       ],
     );
   }
+
+  //loop every ${time} selected
+  void start() {
+    gameLoop();
+  }
+
+  // refresh the board
+  void refresh() {
+    setState(() {
+      daUI = buildTable(table);
+    });
+  }
+
+  void gameLoop() {
+    setCurrentPiece();
+    Timer.periodic(Duration(milliseconds: 500), (timer) {
+      print('TICK    IS    ${timer.tick}');
+      bool failed = downOneRow();
+      if (failed) {
+        timer.cancel();
+        gameLoop();
+        return;
+      }
+      refresh();
+    });
+  }
+
+  void setCurrentPiece() {
+    currentPiece = allThePieces[rand.nextInt(7)]; //random select
+    currentPiecePosition = [
+      currentPiece.part1,
+      currentPiece.part2,
+      currentPiece.part3,
+      currentPiece.part4
+    ];
+    addToTable(currentPiecePosition);
+  }
+
+  void addToTable(List<List<int>> curr) {
+    table[curr[0][0]][curr[0][1]]++;
+    table[curr[1][0]][curr[1][1]]++;
+    table[curr[2][0]][curr[2][1]]++;
+    table[curr[3][0]][curr[3][1]]++;
+    refresh();
+  }
+
+  bool downOneRow() {
+    table2 = [
+      for (var sublist in table) [...sublist]
+    ];
+
+    table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
+    table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
+    table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
+    table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
+    currentPiecePosition = [
+      [++currentPiecePosition[0][0], currentPiecePosition[0][1]],
+      [++currentPiecePosition[1][0], currentPiecePosition[1][1]],
+      [++currentPiecePosition[2][0], currentPiecePosition[2][1]],
+      [++currentPiecePosition[3][0], currentPiecePosition[3][1]],
+    ];
+
+    table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
+    table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
+    table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
+    table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+
+    if (checkCollision() == 2) {
+      table = [
+        for (var sublist in table2) [...sublist]
+      ];
+
+      refresh();
+      return true;
+    } else if (checkCollision() == 1) {
+      refresh();
+      return true;
+    }
+    refresh();
+    return false;
+  }
+
+  void movePieceRight() {
+    if (currentPiecePosition[0][1] == 9 ||
+        currentPiecePosition[1][1] == 9 ||
+        currentPiecePosition[2][1] == 9 ||
+        currentPiecePosition[3][1] == 9) {
+      return;
+    }
+    table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
+    table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
+    table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
+    table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
+    currentPiecePosition = [
+      [currentPiecePosition[0][0], ++currentPiecePosition[0][1]],
+      [currentPiecePosition[1][0], ++currentPiecePosition[1][1]],
+      [currentPiecePosition[2][0], ++currentPiecePosition[2][1]],
+      [currentPiecePosition[3][0], ++currentPiecePosition[3][1]],
+    ];
+
+    table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
+    table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
+    table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
+    table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+    refresh();
+  }
+
+  void movePieceLeft() {
+    if (currentPiecePosition[0][1] == 0 ||
+        currentPiecePosition[1][1] == 0 ||
+        currentPiecePosition[2][1] == 0 ||
+        currentPiecePosition[3][1] == 0) {
+      return;
+    }
+    table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
+    table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
+    table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
+    table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
+    currentPiecePosition = [
+      [currentPiecePosition[0][0], --currentPiecePosition[0][1]],
+      [currentPiecePosition[1][0], --currentPiecePosition[1][1]],
+      [currentPiecePosition[2][0], --currentPiecePosition[2][1]],
+      [currentPiecePosition[3][0], --currentPiecePosition[3][1]],
+    ];
+
+    table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
+    table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
+    table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
+    table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+    refresh();
+  }
+
+  // 0 -> no COLLI, 1 -> bottom COLLI, 2 -> Piece COLLI
+  int checkCollision() {
+    for (int i = 0; i < 20; i++) {
+      for (int y = 0; y < 10; y++) {
+        if (table[i][y] > 1) {
+          print('COLLISION');
+          return 2;
+        }
+      }
+    }
+    if (currentPiecePosition[0][0] == 19 ||
+        currentPiecePosition[1][0] == 19 ||
+        currentPiecePosition[2][0] == 19 ||
+        currentPiecePosition[3][0] == 19) {
+      print('bottom COLLI');
+      return 1;
+    }
+    return 0;
+  }
+
+  void rotatePiece() {}
+
+  void rotateOmikron() {}
+
+  void rotateGiota() {}
+
+  void rotateLamda() {}
+
+  void rotateJey() {}
+
+  void rotateSigma() {}
+
+  void rotateZetta() {}
+
+  void rotateTaf() {}
 }
 
 Column buildTable(List<List<int>> table) {
