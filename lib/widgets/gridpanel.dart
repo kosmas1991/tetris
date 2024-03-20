@@ -46,25 +46,30 @@ class _GridPanelState extends State<GridPanel> {
               start();
             },
             child: Text('Start')),
-        TextButton(
-            onPressed: () {
-              movePieceLeft();
-            },
-            child: Text('Left')),
-        TextButton(
-            onPressed: () {
-              movePieceRight();
-            },
-            child: Text('Right'))
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () {
+                movePieceLeft();
+              },
+              icon: Icon(Icons.chevron_left_sharp),
+              iconSize: 60,
+            ),
+            IconButton(
+              onPressed: () {
+                movePieceRight();
+              },
+              icon: Icon(Icons.chevron_right_sharp),
+              iconSize: 60,
+            )
+          ],
+        ),
       ],
     );
   }
 
-  //loop every ${time} selected
-  void start() {
-    gameLoop();
-  }
-
+  bool end = false;
   // refresh the board
   void refresh() {
     setState(() {
@@ -72,22 +77,30 @@ class _GridPanelState extends State<GridPanel> {
     });
   }
 
+  //loop every ${time} selected
+  void start() {
+    gameLoop();
+  }
+
   void gameLoop() {
     setCurrentPiece();
-    Timer.periodic(Duration(milliseconds: 500), (timer) {
-      print('TICK    IS    ${timer.tick}');
+
+    refresh();
+    Timer.periodic(Duration(milliseconds: 200), (timer) {
       bool failed = downOneRow();
       if (failed) {
         timer.cancel();
-        gameLoop();
-        return;
+        !end ? gameLoop() : print('end');
+      }
+      if (failed && timer.tick == 1) {
+        end = true;
       }
       refresh();
     });
   }
 
   void setCurrentPiece() {
-    currentPiece = allThePieces[rand.nextInt(7)]; //random select
+    Piece currentPiece = allThePieces[rand.nextInt(7)]; //random select
     currentPiecePosition = [
       currentPiece.part1,
       currentPiece.part2,
@@ -115,10 +128,10 @@ class _GridPanelState extends State<GridPanel> {
     table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
     table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
     currentPiecePosition = [
-      [++currentPiecePosition[0][0], currentPiecePosition[0][1]],
-      [++currentPiecePosition[1][0], currentPiecePosition[1][1]],
-      [++currentPiecePosition[2][0], currentPiecePosition[2][1]],
-      [++currentPiecePosition[3][0], currentPiecePosition[3][1]],
+      [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1]],
+      [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1]],
+      [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1]],
+      [currentPiecePosition[3][0] + 1, currentPiecePosition[3][1]],
     ];
 
     table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
@@ -148,21 +161,37 @@ class _GridPanelState extends State<GridPanel> {
         currentPiecePosition[3][1] == 9) {
       return;
     }
+    //save table
+    table2 = [
+      for (var sublist in table) [...sublist]
+    ];
     table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
     table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
     table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
     table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
     currentPiecePosition = [
-      [currentPiecePosition[0][0], ++currentPiecePosition[0][1]],
-      [currentPiecePosition[1][0], ++currentPiecePosition[1][1]],
-      [currentPiecePosition[2][0], ++currentPiecePosition[2][1]],
-      [currentPiecePosition[3][0], ++currentPiecePosition[3][1]],
+      [currentPiecePosition[0][0], currentPiecePosition[0][1] + 1],
+      [currentPiecePosition[1][0], currentPiecePosition[1][1] + 1],
+      [currentPiecePosition[2][0], currentPiecePosition[2][1] + 1],
+      [currentPiecePosition[3][0], currentPiecePosition[3][1] + 1],
     ];
 
     table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
     table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
     table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
     table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+    if (checkCollision() == 2) {
+      //restore table
+      table = [
+        for (var sublist in table2) [...sublist]
+      ];
+      currentPiecePosition = [
+        [currentPiecePosition[0][0], currentPiecePosition[0][1] - 1],
+        [currentPiecePosition[1][0], currentPiecePosition[1][1] - 1],
+        [currentPiecePosition[2][0], currentPiecePosition[2][1] - 1],
+        [currentPiecePosition[3][0], currentPiecePosition[3][1] - 1],
+      ];
+    }
     refresh();
   }
 
@@ -173,21 +202,37 @@ class _GridPanelState extends State<GridPanel> {
         currentPiecePosition[3][1] == 0) {
       return;
     }
+    //save table
+    table2 = [
+      for (var sublist in table) [...sublist]
+    ];
     table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
     table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
     table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
     table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
     currentPiecePosition = [
-      [currentPiecePosition[0][0], --currentPiecePosition[0][1]],
-      [currentPiecePosition[1][0], --currentPiecePosition[1][1]],
-      [currentPiecePosition[2][0], --currentPiecePosition[2][1]],
-      [currentPiecePosition[3][0], --currentPiecePosition[3][1]],
+      [currentPiecePosition[0][0], currentPiecePosition[0][1] - 1],
+      [currentPiecePosition[1][0], currentPiecePosition[1][1] - 1],
+      [currentPiecePosition[2][0], currentPiecePosition[2][1] - 1],
+      [currentPiecePosition[3][0], currentPiecePosition[3][1] - 1],
     ];
 
     table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
     table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
     table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
     table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+    if (checkCollision() == 2) {
+      //restore table
+      table = [
+        for (var sublist in table2) [...sublist]
+      ];
+      currentPiecePosition = [
+        [currentPiecePosition[0][0], currentPiecePosition[0][1] + 1],
+        [currentPiecePosition[1][0], currentPiecePosition[1][1] + 1],
+        [currentPiecePosition[2][0], currentPiecePosition[2][1] + 1],
+        [currentPiecePosition[3][0], currentPiecePosition[3][1] + 1],
+      ];
+    }
     refresh();
   }
 
@@ -196,7 +241,6 @@ class _GridPanelState extends State<GridPanel> {
     for (int i = 0; i < 20; i++) {
       for (int y = 0; y < 10; y++) {
         if (table[i][y] > 1) {
-          print('COLLISION');
           return 2;
         }
       }
@@ -205,7 +249,6 @@ class _GridPanelState extends State<GridPanel> {
         currentPiecePosition[1][0] == 19 ||
         currentPiecePosition[2][0] == 19 ||
         currentPiecePosition[3][0] == 19) {
-      print('bottom COLLI');
       return 1;
     }
     return 0;
