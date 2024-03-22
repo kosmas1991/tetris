@@ -39,3 +39,5 @@ final Piece Zetta = Piece(name: 'Zetta', part1: [0, 4], part2: [0, 5], part3: [1
 final Piece Taf = Piece(name: 'Taf', part1: [0, 4], part2: [1, 3], part3: [1, 4], part4: [1, 5]);
 
 final List<Piece> allThePieces = [Omikron, Giota, Lamda, Jey, Sigma, Zetta, Taf];
+
+enum Rotation{base,t90,t180,t270}
