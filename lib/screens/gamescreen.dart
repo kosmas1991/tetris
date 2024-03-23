@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tetris/widgets/buttonspanel.dart';
+
 import 'package:tetris/widgets/gridpanel.dart';
 
 class GameScreen extends StatelessWidget {
@@ -13,9 +13,6 @@ class GameScreen extends StatelessWidget {
         child: Column(children: [
           //grid
           GridPanel(),
-
-          //buttons
-          ButtonsPanel(),
         ]),
       ),
     );

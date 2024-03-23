@@ -13,6 +13,7 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
+  bool resetPressed = false;
   Random rand = Random();
   Column daUI = Column();
   var table = table_var.table;
@@ -36,11 +37,28 @@ class _GridPanelState extends State<GridPanel> {
     return Column(
       children: [
         daUI,
-        TextButton(
-            onPressed: () {
-              start();
-            },
-            child: Text('Start')),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+                onPressed: () {
+                  start();
+                },
+                child: Text(
+                  'Start',
+                  style: TextStyle(color: Color.fromARGB(255, 36, 116, 39)),
+                )),
+            TextButton(
+                onPressed: () {
+                  resetPressed = true;
+                },
+                child: Text(
+                  'Reset',
+                  style:
+                      TextStyle(color: const Color.fromARGB(255, 117, 41, 36)),
+                ))
+          ],
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -57,15 +75,15 @@ class _GridPanelState extends State<GridPanel> {
               },
               icon: Icon(Icons.chevron_right_sharp),
               iconSize: 60,
-            )
+            ),
+            IconButton(
+                onPressed: rotatePiece,
+                icon: Icon(
+                  Icons.rotate_90_degrees_ccw,
+                  size: 40,
+                )),
           ],
         ),
-        IconButton(
-            onPressed: rotatePiece,
-            icon: Icon(
-              Icons.rotate_90_degrees_ccw,
-              size: 40,
-            )),
       ],
     );
   }
@@ -77,6 +95,16 @@ class _GridPanelState extends State<GridPanel> {
     });
   }
 
+  void reset() {
+    for (int line = 0; line < 20; line++) {
+      for (int number = 0; number < 10; number++) {
+        table[line][number] = 0;
+      }
+    }
+    gameLoop();
+    resetPressed = false;
+  }
+
   void start() {
     gameLoop();
   }
@@ -86,6 +114,10 @@ class _GridPanelState extends State<GridPanel> {
     setCurrentPiece();
     refresh();
     Timer.periodic(Duration(milliseconds: 500), (timer) {
+      if (resetPressed) {
+        timer.cancel();
+        reset();
+      }
       bool failed = downOneRow();
       if (failed && timer.tick == 1) {
         end = true;
@@ -1034,11 +1066,10 @@ class _GridPanelState extends State<GridPanel> {
       print(counter);
       //check
       if (counter == 10) {
-
         print('row is ${i} ');
         for (int row = i; row > 0; row--) {
           for (int cube = 0; cube < 10; cube++) {
-            table[row][cube] = table[row-1][cube];
+            table[row][cube] = table[row - 1][cube];
           }
         }
         print('TETRIS');
@@ -1055,15 +1086,18 @@ class _GridPanelState extends State<GridPanel> {
         simpleRow.add(
           Container(
             child: Center(
-              child: Text(
-                '${i}/${j}',
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-            color: table[i][j] == 0 ? Colors.black : Colors.yellow,
+                // child:
+                // Text(
+                //   '${i}/${j}',
+                //   style: TextStyle(color: Colors.white, fontSize: 12),
+                // ),
+                ),
             height: 30,
             width: 30,
             margin: EdgeInsets.all(1),
+            decoration: BoxDecoration(
+                color: table[i][j] == 0 ? Colors.black : Colors.yellow,
+                borderRadius: BorderRadius.circular(3)),
           ),
         );
       }
