@@ -101,7 +101,7 @@ class _GridPanelState extends State<GridPanel> {
   void setCurrentPiece() {
     pieceRotation = Rotation.base;
     //currentPiece = allThePieces[rand.nextInt(7)];
-    currentPiece = Lamda;
+    currentPiece = Sigma;
     currentPiecePosition = [
       currentPiece.part1,
       currentPiece.part2,
@@ -529,10 +529,166 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void rotateJey() {
+    bool success = false;
+    if (pieceRotation == Rotation.base) {
+      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] + 1]
+                  [currentPiecePosition[0][1] - 1] ==
+              0 &&
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] - 1]
+                  [currentPiecePosition[2][1] + 1] ==
+              0 &&
+          table[currentPiecePosition[3][0]][currentPiecePosition[3][1] + 2] ==
+              0) {
+        currentPiecePosition = [
+          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] - 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] + 1],
+          [currentPiecePosition[3][0], currentPiecePosition[3][1] + 2],
+        ];
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        success = true;
+        pieceRotation = Rotation.t90;
+      }
+      if (success == false) {
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      }
+      refresh();
+    } else if (pieceRotation == Rotation.t90) {
+      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] + 1]
+                  [currentPiecePosition[0][1] + 1] ==
+              0 &&
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] - 1]
+                  [currentPiecePosition[2][1] - 1] ==
+              0 &&
+          table[currentPiecePosition[3][0] - 2][currentPiecePosition[3][1]] ==
+              0) {
+        currentPiecePosition = [
+          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] + 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] - 1],
+          [currentPiecePosition[3][0] - 2, currentPiecePosition[3][1]],
+        ];
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        success = true;
+        refresh();
+        pieceRotation = Rotation.t180;
+      }
+      if (success == false) {
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      }
+    } else if (pieceRotation == Rotation.t180) {
+      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] - 1]
+                  [currentPiecePosition[0][1] + 1] ==
+              0 &&
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] + 1]
+                  [currentPiecePosition[2][1] - 1] ==
+              0 &&
+          table[currentPiecePosition[3][0]][currentPiecePosition[3][1] - 2] ==
+              0) {
+        currentPiecePosition = [
+          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] + 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] - 1],
+          [currentPiecePosition[3][0], currentPiecePosition[3][1] - 2],
+        ];
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        success = true;
+        refresh();
+        pieceRotation = Rotation.t270;
+      }
+      if (success == false) {
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      }
+    } else if (pieceRotation == Rotation.t270) {
+      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] - 1]
+                  [currentPiecePosition[0][1] - 1] ==
+              0 &&
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] + 1]
+                  [currentPiecePosition[2][1] + 1] ==
+              0 &&
+          table[currentPiecePosition[3][0] + 2][currentPiecePosition[3][1]] ==
+              0) {
+        currentPiecePosition = [
+          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] - 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] + 1],
+          [currentPiecePosition[3][0] + 2, currentPiecePosition[3][1]],
+        ];
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        success = true;
+        refresh();
+        pieceRotation = Rotation.base;
+      }
+      if (success == false) {
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      }
+    }
     print('Jey');
   }
 
+// part1: [0, 5], part2: [0, 4], part3: [1, 4], part4: [1, 3]
   void rotateSigma() {
+
     print('Sigma');
   }
 
