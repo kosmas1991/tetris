@@ -14,24 +14,17 @@ class GridPanel extends StatefulWidget {
 
 class _GridPanelState extends State<GridPanel> {
   Random rand = Random();
-  @override
-  void initState() {
-    //setCurrentPiece();
-    super.initState();
-  }
-
   Column daUI = Column();
   var table = table_var.table;
   var table2 = table_var.table;
   Piece currentPiece = Omikron;
   Rotation pieceRotation = Rotation.base;
-  //dummy data
   List<List<int>> currentPiecePosition = [
     [0, 0],
     [0, 0],
     [0, 0],
     [0, 0],
-  ]; //dummy data
+  ];
   int secondChance = 0;
 
   @override
@@ -78,14 +71,12 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   bool end = false;
-  // refresh the board
   void refresh() {
     setState(() {
       daUI = buildTable(table);
     });
   }
 
-  //loop every ${time} selected
   void start() {
     gameLoop();
   }
@@ -109,7 +100,8 @@ class _GridPanelState extends State<GridPanel> {
 
   void setCurrentPiece() {
     pieceRotation = Rotation.base;
-    currentPiece = allThePieces[rand.nextInt(7)]; //random select
+    //currentPiece = allThePieces[rand.nextInt(7)];
+    currentPiece = Lamda;
     currentPiecePosition = [
       currentPiece.part1,
       currentPiece.part2,
@@ -291,84 +283,97 @@ class _GridPanelState extends State<GridPanel> {
     }
   }
 
-  // [[0,0],[0,0],[0,0],[0,0]]
   void rotateOmikron() {
     print('Omikron');
   }
 
   void rotateGiota() {
+    bool success = false;
     if (pieceRotation == Rotation.base) {
-      if (table[currentPiecePosition[0][0] - 1]
-                  [currentPiecePosition[0][1] + 1] ==
+      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      if ((currentPiecePosition[2][0] >= 2 &&
+              currentPiecePosition[2][0] <= 18) &&
+          table[currentPiecePosition[0][0] - 2]
+                  [currentPiecePosition[0][1] + 2] ==
               0 &&
-          table[currentPiecePosition[2][0] + 1]
-                  [currentPiecePosition[2][1] - 1] ==
+          table[currentPiecePosition[1][0] - 1]
+                  [currentPiecePosition[1][1] + 1] ==
               0 &&
-          table[currentPiecePosition[3][0] + 2]
-                  [currentPiecePosition[3][1] - 2] ==
-              0 && //check floor an ceil
-          (currentPiecePosition[0][0] - 1 >= 0 &&
-              currentPiecePosition[2][0] + 1 <= 19 &&
-              currentPiecePosition[3][0] + 2 <= 19)) {
-        //afairesi kai prosthesi
-        --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+          table[currentPiecePosition[2][0]][currentPiecePosition[2][1]] == 0 &&
+          table[currentPiecePosition[3][0] + 1]
+                  [currentPiecePosition[3][1] - 1] ==
+              0) {
         currentPiecePosition = [
-          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] + 1],
-          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
-          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] - 1],
-          [currentPiecePosition[3][0] + 2, currentPiecePosition[3][1] - 2],
+          [currentPiecePosition[0][0] - 2, currentPiecePosition[0][1] + 2],
+          [currentPiecePosition[1][0] - 1, currentPiecePosition[1][1] + 1],
+          [currentPiecePosition[2][0], currentPiecePosition[2][1]],
+          [currentPiecePosition[3][0] + 1, currentPiecePosition[3][1] - 1],
         ];
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
         ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        success = true;
+
         refresh();
-        // Rotation.t90
         pieceRotation = Rotation.t90;
       }
-    } else if (pieceRotation == Rotation.t90) {
-      if (table[currentPiecePosition[0][0] + 1]
-                  [currentPiecePosition[0][1] - 1] ==
-              0 &&
-          table[currentPiecePosition[2][0] - 1]
-                  [currentPiecePosition[2][1] + 1] ==
-              0 &&
-          table[currentPiecePosition[3][0] - 2]
-                  [currentPiecePosition[3][1] + 2] ==
-              0 &&
-          (currentPiecePosition[0][1] - 1 >= 0 &&
-              currentPiecePosition[2][1] + 1 <= 9 &&
-              currentPiecePosition[3][1] + 2 <= 9)) {
-        //afairesi kai prosthesi
-        --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-        currentPiecePosition = [
-          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] - 1],
-          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
-          [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] + 1],
-          [currentPiecePosition[3][0] - 2, currentPiecePosition[3][1] + 2],
-        ];
+      if (success == false) {
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
         ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      }
+    } else if (pieceRotation == Rotation.t90) {
+      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+      if (currentPiecePosition[2][1] >= 2 &&
+          currentPiecePosition[2][1] <= 8 &&
+          table[currentPiecePosition[0][0] + 2]
+                  [currentPiecePosition[0][1] - 2] ==
+              0 &&
+          table[currentPiecePosition[1][0] + 1]
+                  [currentPiecePosition[1][1] - 1] ==
+              0 &&
+          table[currentPiecePosition[2][0]][currentPiecePosition[2][1]] == 0 &&
+          table[currentPiecePosition[3][0] - 1]
+                  [currentPiecePosition[3][1] + 1] ==
+              0) {
+        currentPiecePosition = [
+          [currentPiecePosition[0][0] + 2, currentPiecePosition[0][1] - 2],
+          [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1] - 1],
+          [currentPiecePosition[2][0], currentPiecePosition[2][1]],
+          [currentPiecePosition[3][0] - 1, currentPiecePosition[3][1] + 1],
+        ];
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        success = true;
         refresh();
-        // Rotation.t90
+
         pieceRotation = Rotation.base;
-        // an petyxei Rotation.base
+      }
+      if (success == false) {
+        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
       print('Giota');
     }
   }
 
-// part1: [0, 4], part2: [1, 4], part3: [2, 4], part4: [2, 5]
+
+
+
   void rotateLamda() {
     bool success = false;
-    //save table
-    table2 = [
-      for (var sublist in table) [...sublist]
-    ];
     if (pieceRotation == Rotation.base) {
       --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
       --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
@@ -394,8 +399,6 @@ class _GridPanelState extends State<GridPanel> {
         ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
         success = true;
-
-        // Rotation.t90
         pieceRotation = Rotation.t90;
       }
       if (success == false) {
@@ -420,8 +423,6 @@ class _GridPanelState extends State<GridPanel> {
           table[currentPiecePosition[3][0] - 1]
                   [currentPiecePosition[3][1] - 1] ==
               0) {
-        //afairesi kai prosthesi
-
         currentPiecePosition = [
           [currentPiecePosition[0][0], currentPiecePosition[0][1] + 2],
           [currentPiecePosition[1][0] - 1, currentPiecePosition[1][1] + 1],
@@ -434,9 +435,7 @@ class _GridPanelState extends State<GridPanel> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
         success = true;
         refresh();
-        // Rotation.t90
         pieceRotation = Rotation.t180;
-        // an petyxei Rotation.base
       }
       if (success == false) {
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
@@ -459,8 +458,6 @@ class _GridPanelState extends State<GridPanel> {
           table[currentPiecePosition[3][0] + 1]
                   [currentPiecePosition[3][1] - 1] ==
               0) {
-        //afairesi kai prosthesi
-
         currentPiecePosition = [
           [currentPiecePosition[0][0] - 2, currentPiecePosition[0][1]],
           [currentPiecePosition[1][0] - 1, currentPiecePosition[1][1] - 1],
@@ -473,9 +470,7 @@ class _GridPanelState extends State<GridPanel> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
         success = true;
         refresh();
-        // Rotation.t90
         pieceRotation = Rotation.t270;
-        // an petyxei Rotation.base
       }
       if (success == false) {
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
@@ -498,8 +493,6 @@ class _GridPanelState extends State<GridPanel> {
           table[currentPiecePosition[3][0] + 1]
                   [currentPiecePosition[3][1] + 1] ==
               0) {
-        //afairesi kai prosthesi
-
         currentPiecePosition = [
           [currentPiecePosition[0][0], currentPiecePosition[0][1] - 2],
           [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1] - 1],
@@ -512,9 +505,7 @@ class _GridPanelState extends State<GridPanel> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
         success = true;
         refresh();
-        // Rotation.t90
         pieceRotation = Rotation.base;
-        // an petyxei Rotation.base
       }
       if (success == false) {
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
