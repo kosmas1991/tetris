@@ -82,6 +82,7 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void gameLoop() {
+    checkForTetris();
     setCurrentPiece();
     refresh();
     Timer.periodic(Duration(milliseconds: 500), (timer) {
@@ -100,8 +101,8 @@ class _GridPanelState extends State<GridPanel> {
 
   void setCurrentPiece() {
     pieceRotation = Rotation.base;
-    //currentPiece = allThePieces[rand.nextInt(7)];
-    currentPiece = Taf;
+    currentPiece = allThePieces[rand.nextInt(7)];
+
     currentPiecePosition = [
       currentPiece.part1,
       currentPiece.part2,
@@ -1017,39 +1018,66 @@ class _GridPanelState extends State<GridPanel> {
     }
     print('Taf');
   }
-}
 
-Column buildTable(List<List<int>> table) {
-  List<Row> UIrows = [];
-  List<Container> simpleRow = [];
-  List<List<Container>> allTheRows = [];
-  for (int i = 0; i < 20; i++) {
-    for (int j = 0; j < 10; j++) {
-      simpleRow.add(
-        Container(
-          child: Center(
-            child: Text(
-              '${i}/${j}',
-              style: TextStyle(color: Colors.white, fontSize: 12),
-            ),
-          ),
-          color: table[i][j] == 0 ? Colors.black : Colors.yellow,
-          height: 30,
-          width: 30,
-          margin: EdgeInsets.all(1),
-        ),
-      );
+  void checkForTetris() {
+    for (int i = 0; i < 20; i++) {
+      // each row
+      int counter = 0;
+
+      for (int y = 0; y < 10; y++) {
+        // add to counter
+        if (table[i][y] == 1) {
+          counter++;
+        }
+      }
+
+      print(counter);
+      //check
+      if (counter == 10) {
+
+        print('row is ${i} ');
+        for (int row = i; row > 0; row--) {
+          for (int cube = 0; cube < 10; cube++) {
+            table[row][cube] = table[row-1][cube];
+          }
+        }
+        print('TETRIS');
+      }
     }
-    allTheRows.add(simpleRow);
-    simpleRow = [];
   }
 
-  for (int i = 0; i < 20; i++) {
-    UIrows.add(Row(
-      children: [...allTheRows[i]],
-    ));
+  Column buildTable(List<List<int>> table) {
+    List<Row> UIrows = [];
+    List<Container> simpleRow = [];
+    List<List<Container>> allTheRows = [];
+    for (int i = 0; i < 20; i++) {
+      for (int j = 0; j < 10; j++) {
+        simpleRow.add(
+          Container(
+            child: Center(
+              child: Text(
+                '${i}/${j}',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+            color: table[i][j] == 0 ? Colors.black : Colors.yellow,
+            height: 30,
+            width: 30,
+            margin: EdgeInsets.all(1),
+          ),
+        );
+      }
+      allTheRows.add(simpleRow);
+      simpleRow = [];
+    }
+
+    for (int i = 0; i < 20; i++) {
+      UIrows.add(Row(
+        children: [...allTheRows[i]],
+      ));
+    }
+    return Column(
+      children: [...UIrows],
+    );
   }
-  return Column(
-    children: [...UIrows],
-  );
 }
