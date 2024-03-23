@@ -369,9 +369,7 @@ class _GridPanelState extends State<GridPanel> {
     }
   }
 
-
-
-
+//part1: [0, 4], part2: [1, 4], part3: [2, 4], part4: [2, 5]
   void rotateLamda() {
     bool success = false;
     if (pieceRotation == Rotation.base) {
@@ -379,20 +377,24 @@ class _GridPanelState extends State<GridPanel> {
       --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
       --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
       --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (table[currentPiecePosition[0][0] + 2]
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] + 1]
                   [currentPiecePosition[0][1] - 1] ==
               0 &&
-          table[currentPiecePosition[1][0] + 1][currentPiecePosition[1][1]] ==
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] - 1]
+                  [currentPiecePosition[2][1] + 1] ==
               0 &&
-          table[currentPiecePosition[2][0]][currentPiecePosition[2][1] + 1] ==
-              0 &&
-          table[currentPiecePosition[3][0] - 1][currentPiecePosition[3][1]] ==
+          table[currentPiecePosition[3][0] - 2][currentPiecePosition[3][1]] ==
               0) {
         currentPiecePosition = [
-          [currentPiecePosition[0][0] + 2, currentPiecePosition[0][1] - 1],
-          [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1]],
-          [currentPiecePosition[2][0], currentPiecePosition[2][1] + 1],
-          [currentPiecePosition[3][0] - 1, currentPiecePosition[3][1]],
+          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] - 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] + 1],
+          [currentPiecePosition[3][0] - 2, currentPiecePosition[3][1]],
         ];
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
         ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
@@ -413,21 +415,24 @@ class _GridPanelState extends State<GridPanel> {
       --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
       --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
       --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (table[currentPiecePosition[0][0]][currentPiecePosition[0][1] + 2] ==
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] + 1]
+                  [currentPiecePosition[0][1] + 1] ==
               0 &&
-          table[currentPiecePosition[1][0] - 1]
-                  [currentPiecePosition[1][1] + 1] ==
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] - 1]
+                  [currentPiecePosition[2][1] - 1] ==
               0 &&
-          table[currentPiecePosition[2][0] - 2][currentPiecePosition[2][1]] ==
-              0 &&
-          table[currentPiecePosition[3][0] - 1]
-                  [currentPiecePosition[3][1] - 1] ==
+          table[currentPiecePosition[3][0]][currentPiecePosition[3][1] - 2] ==
               0) {
         currentPiecePosition = [
-          [currentPiecePosition[0][0], currentPiecePosition[0][1] + 2],
-          [currentPiecePosition[1][0] - 1, currentPiecePosition[1][1] + 1],
-          [currentPiecePosition[2][0] - 2, currentPiecePosition[2][1]],
-          [currentPiecePosition[3][0] - 1, currentPiecePosition[3][1] - 1],
+          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] + 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] - 1],
+          [currentPiecePosition[3][0], currentPiecePosition[3][1] - 2],
         ];
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
         ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
@@ -448,21 +453,24 @@ class _GridPanelState extends State<GridPanel> {
       --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
       --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
       --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (table[currentPiecePosition[0][0] - 2][currentPiecePosition[0][1]] ==
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] - 1]
+                  [currentPiecePosition[0][1] + 1] ==
               0 &&
-          table[currentPiecePosition[1][0] - 1]
-                  [currentPiecePosition[1][1] - 1] ==
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] + 1]
+                  [currentPiecePosition[2][1] - 1] ==
               0 &&
-          table[currentPiecePosition[2][0]][currentPiecePosition[2][1] - 2] ==
-              0 &&
-          table[currentPiecePosition[3][0] + 1]
-                  [currentPiecePosition[3][1] - 1] ==
+          table[currentPiecePosition[3][0] + 2][currentPiecePosition[3][1]] ==
               0) {
         currentPiecePosition = [
-          [currentPiecePosition[0][0] - 2, currentPiecePosition[0][1]],
-          [currentPiecePosition[1][0] - 1, currentPiecePosition[1][1] - 1],
-          [currentPiecePosition[2][0], currentPiecePosition[2][1] - 2],
-          [currentPiecePosition[3][0] + 1, currentPiecePosition[3][1] - 1],
+          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] + 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] - 1],
+          [currentPiecePosition[3][0] + 2, currentPiecePosition[3][1]],
         ];
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
         ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
@@ -483,21 +491,24 @@ class _GridPanelState extends State<GridPanel> {
       --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
       --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
       --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (table[currentPiecePosition[0][0]][currentPiecePosition[0][1] - 2] ==
+      if (currentPiecePosition[1][0] >= 1 &&
+          currentPiecePosition[1][0] <= 18 &&
+          currentPiecePosition[1][1] >= 1 &&
+          currentPiecePosition[1][1] <= 8 &&
+          table[currentPiecePosition[0][0] - 1]
+                  [currentPiecePosition[0][1] - 1] ==
               0 &&
-          table[currentPiecePosition[1][0] + 1]
-                  [currentPiecePosition[1][1] - 1] ==
+          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
+          table[currentPiecePosition[2][0] + 1]
+                  [currentPiecePosition[2][1] + 1] ==
               0 &&
-          table[currentPiecePosition[2][0] + 2][currentPiecePosition[2][1]] ==
-              0 &&
-          table[currentPiecePosition[3][0] + 1]
-                  [currentPiecePosition[3][1] + 1] ==
+          table[currentPiecePosition[3][0]][currentPiecePosition[3][1] + 2] ==
               0) {
         currentPiecePosition = [
-          [currentPiecePosition[0][0], currentPiecePosition[0][1] - 2],
-          [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1] - 1],
-          [currentPiecePosition[2][0] + 2, currentPiecePosition[2][1]],
-          [currentPiecePosition[3][0] + 1, currentPiecePosition[3][1] + 1],
+          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] - 1],
+          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] + 1],
+          [currentPiecePosition[3][0], currentPiecePosition[3][1] + 2],
         ];
         ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
         ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
