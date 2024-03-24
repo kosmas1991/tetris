@@ -19,9 +19,18 @@ class _GridPanelState extends State<GridPanel> {
   bool resetPressed = false;
   bool speedUp = false;
   Random rand = Random();
+  Piece nextPieceToPlay = Omikron;
   Column daUI = Column();
+  Column nextPiece = Column();
   var table = table_var.table;
   var table2 = table_var.table;
+  //dummy data
+  var tableNextPiece = [
+    [0, 0, 0, 0],
+    [1, 0, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 0]
+  ];
   Piece currentPiece = Omikron;
   Rotation pieceRotation = Rotation.base;
   List<List<int>> currentPiecePosition = [
@@ -34,13 +43,93 @@ class _GridPanelState extends State<GridPanel> {
 
   @override
   Widget build(BuildContext context) {
+    switch (nextPieceToPlay.name) {
+      case 'Omikron':
+        tableNextPiece = [
+          [0, 1, 1, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ];
+      case 'Giota':
+        tableNextPiece = [
+          [1, 1, 1, 1],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ];
+      case 'Lamda':
+        tableNextPiece = [
+          [0, 1, 0, 0],
+          [0, 1, 0, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ];
+      case 'Jey':
+        tableNextPiece = [
+          [0, 0, 1, 0],
+          [0, 0, 1, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ];
+      case 'Sigma':
+        tableNextPiece = [
+          [0, 1, 1, 0],
+          [1, 1, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ];
+      case 'Zetta':
+        tableNextPiece = [
+          [0, 1, 1, 0],
+          [0, 0, 1, 1],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ];
+      case 'Taf':
+        tableNextPiece = [
+          [0, 1, 0, 0],
+          [1, 1, 1, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ];
+    }
     setState(() {
       daUI = buildTable(table);
+      nextPiece = buildTable4multi4(tableNextPiece);
     });
 
     return Column(
       children: [
-        daUI,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            daUI,
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.black38,
+              ),
+              height: 90,
+              width: 90,
+              child: Column(
+                children: [
+                  Text(
+                    'NEXT',
+                    style: TextStyle(color: Colors.yellow, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      nextPiece,
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -75,7 +164,7 @@ class _GridPanelState extends State<GridPanel> {
                     timer.cancel();
                     return;
                   }
-                 timer.tick>2? movePieceLeft():null;
+                  timer.tick > 2 ? movePieceLeft() : null;
                 });
               },
               onPointerUp: (event) {
@@ -106,7 +195,7 @@ class _GridPanelState extends State<GridPanel> {
                     timer.cancel();
                     return;
                   }
-                  timer.tick>2? movePieceRight():null;
+                  timer.tick > 2 ? movePieceRight() : null;
                 });
               },
               onPointerUp: (event) {
@@ -167,6 +256,12 @@ class _GridPanelState extends State<GridPanel> {
         ),
       ],
     );
+  }
+
+  @override
+  void initState() {
+    nextPieceToPlay = allThePieces[rand.nextInt(7)];
+    super.initState();
   }
 
   void refresh() {
@@ -238,7 +333,8 @@ class _GridPanelState extends State<GridPanel> {
 
   void setCurrentPiece() {
     pieceRotation = Rotation.base;
-    currentPiece = allThePieces[rand.nextInt(7)];
+    currentPiece = nextPieceToPlay;
+    nextPieceToPlay = allThePieces[rand.nextInt(7)];
 
     currentPiecePosition = [
       currentPiece.part1,
@@ -1246,6 +1342,43 @@ class _GridPanelState extends State<GridPanel> {
     }
 
     for (int i = 0; i < 20; i++) {
+      UIrows.add(Row(
+        children: [...allTheRows[i]],
+      ));
+    }
+    return Column(
+      children: [...UIrows],
+    );
+  }
+
+  Column buildTable4multi4(List<List<int>> table) {
+    List<Row> UIrows = [];
+    List<Container> simpleRow = [];
+    List<List<Container>> allTheRows = [];
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        simpleRow.add(
+          Container(
+            child: Center(
+                // child: Text(
+                //   '${i}/${j}',
+                //   style: TextStyle(color: Colors.white, fontSize: 5),
+                // ),
+                ),
+            height: 10,
+            width: 10,
+            margin: EdgeInsets.all(1),
+            decoration: BoxDecoration(
+                color: table[i][j] == 0 ? Colors.black : Colors.yellow,
+                borderRadius: BorderRadius.circular(1)),
+          ),
+        );
+      }
+      allTheRows.add(simpleRow);
+      simpleRow = [];
+    }
+
+    for (int i = 0; i < 4; i++) {
       UIrows.add(Row(
         children: [...allTheRows[i]],
       ));
