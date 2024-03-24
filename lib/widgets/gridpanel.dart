@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tetris/models/piece.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 import 'package:vibration/vibration.dart';
@@ -13,6 +14,8 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
+  bool moveRightPressedcont = false;
+  bool moveLeftPressedcont = false;
   bool end = false;
   bool resetPressed = false;
   bool speedUp = false;
@@ -65,32 +68,56 @@ class _GridPanelState extends State<GridPanel> {
         Wrap(
           alignment: WrapAlignment.center,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(1000),
-                color: Colors.yellow,
-              ),
-              child: IconButton(
-                onPressed: () {
+            Listener(
+              onPointerDown: (event) {
+                moveLeftPressedcont = true;
+                Timer.periodic(Duration(milliseconds: 200), (timer) {
+                  if (!moveLeftPressedcont) {
+                    timer.cancel();
+                  }
                   movePieceLeft();
-                },
-                icon: Icon(Icons.chevron_left_sharp),
-                iconSize: 50,
+                });
+              },
+              onPointerUp: (event) {
+                moveLeftPressedcont = false;
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(1000),
+                  color: Colors.yellow,
+                ),
+                child: IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.chevron_left_sharp),
+                  iconSize: 50,
+                ),
               ),
             ),
             SizedBox(
               width: 30,
             ),
-            Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1000),
-                  color: Colors.yellow),
-              child: IconButton(
-                onPressed: () {
+            Listener(
+              onPointerDown: (event) {
+                moveRightPressedcont = true;
+                Timer.periodic(Duration(milliseconds: 200), (timer) {
+                  if (!moveRightPressedcont) {
+                    timer.cancel();
+                  }
                   movePieceRight();
-                },
-                icon: Icon(Icons.chevron_right_sharp),
-                iconSize: 50,
+                });
+              },
+              onPointerUp: (event) {
+                moveRightPressedcont = false;
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(1000),
+                    color: Colors.yellow),
+                child: IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.chevron_right_sharp),
+                  iconSize: 50,
+                ),
               ),
             ),
             SizedBox(
