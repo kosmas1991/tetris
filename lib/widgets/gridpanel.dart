@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tetris/models/piece.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
+import 'package:vibration/vibration.dart';
+
 
 class GridPanel extends StatefulWidget {
   const GridPanel({super.key});
@@ -192,7 +192,7 @@ class _GridPanelState extends State<GridPanel> {
 
         if (failed) {
           timer.cancel();
-          !end ? gameLoop() : print('end');
+          !end ? gameLoop() : Vibration.vibrate(duration: 500);;
         }
         refresh();
       });
@@ -268,6 +268,7 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void movePieceRight() {
+    Vibration.vibrate(duration: 10);
     if (currentPiecePosition[0][1] == 9 ||
         currentPiecePosition[1][1] == 9 ||
         currentPiecePosition[2][1] == 9 ||
@@ -309,6 +310,7 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void movePieceLeft() {
+    Vibration.vibrate(duration: 10);
     if (currentPiecePosition[0][1] == 0 ||
         currentPiecePosition[1][1] == 0 ||
         currentPiecePosition[2][1] == 0 ||
@@ -368,6 +370,7 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void rotatePiece() {
+    Vibration.vibrate(duration: 10);
     switch (currentPiece.name) {
       case 'Omikron':
         rotateOmikron();
@@ -1143,6 +1146,7 @@ class _GridPanelState extends State<GridPanel> {
           }
         }
         print('TETRIS');
+        Vibration.vibrate(duration: 100);
       }
     }
   }
