@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tetris/models/piece.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 import 'package:vibration/vibration.dart';
@@ -71,11 +70,12 @@ class _GridPanelState extends State<GridPanel> {
             Listener(
               onPointerDown: (event) {
                 moveLeftPressedcont = true;
-                Timer.periodic(Duration(milliseconds: 200), (timer) {
+                Timer.periodic(Duration(milliseconds: 150), (timer) {
                   if (!moveLeftPressedcont) {
                     timer.cancel();
+                    return;
                   }
-                  movePieceLeft();
+                 timer.tick>2? movePieceLeft():null;
                 });
               },
               onPointerUp: (event) {
@@ -87,7 +87,9 @@ class _GridPanelState extends State<GridPanel> {
                   color: Colors.yellow,
                 ),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    !moveLeftPressedcont ? movePieceLeft() : null;
+                  },
                   icon: Icon(Icons.chevron_left_sharp),
                   iconSize: 50,
                 ),
@@ -99,11 +101,12 @@ class _GridPanelState extends State<GridPanel> {
             Listener(
               onPointerDown: (event) {
                 moveRightPressedcont = true;
-                Timer.periodic(Duration(milliseconds: 200), (timer) {
+                Timer.periodic(Duration(milliseconds: 150), (timer) {
                   if (!moveRightPressedcont) {
                     timer.cancel();
+                    return;
                   }
-                  movePieceRight();
+                  timer.tick>2? movePieceRight():null;
                 });
               },
               onPointerUp: (event) {
@@ -114,7 +117,9 @@ class _GridPanelState extends State<GridPanel> {
                     borderRadius: BorderRadius.circular(1000),
                     color: Colors.yellow),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    !moveRightPressedcont ? movePieceRight() : null;
+                  },
                   icon: Icon(Icons.chevron_right_sharp),
                   iconSize: 50,
                 ),
