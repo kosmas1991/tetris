@@ -5,7 +5,6 @@ import 'package:tetris/models/piece.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 import 'package:vibration/vibration.dart';
 
-
 class GridPanel extends StatefulWidget {
   const GridPanel({super.key});
 
@@ -14,8 +13,9 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
-  bool speedUp = false;
+  bool end = false;
   bool resetPressed = false;
+  bool speedUp = false;
   Random rand = Random();
   Column daUI = Column();
   var table = table_var.table;
@@ -53,6 +53,7 @@ class _GridPanelState extends State<GridPanel> {
             TextButton(
                 onPressed: () {
                   resetPressed = true;
+                  end ? reset() : null;
                 },
                 child: Text(
                   'Reset',
@@ -136,7 +137,6 @@ class _GridPanelState extends State<GridPanel> {
     );
   }
 
-  bool end = false;
   void refresh() {
     setState(() {
       daUI = buildTable(table);
@@ -149,8 +149,10 @@ class _GridPanelState extends State<GridPanel> {
         table[line][number] = 0;
       }
     }
-    gameLoop();
+    refresh();
     resetPressed = false;
+    end = false;
+    start();
   }
 
   void start() {
@@ -192,7 +194,8 @@ class _GridPanelState extends State<GridPanel> {
 
         if (failed) {
           timer.cancel();
-          !end ? gameLoop() : Vibration.vibrate(duration: 500);;
+          !end ? gameLoop() : Vibration.vibrate(duration: 500);
+          ;
         }
         refresh();
       });
@@ -227,21 +230,26 @@ class _GridPanelState extends State<GridPanel> {
       for (var sublist in table) [...sublist]
     ];
     if (secondChance == 0) {
-      table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
-      table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
-      table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
-      table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
-      currentPiecePosition = [
-        [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1]],
-        [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1]],
-        [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1]],
-        [currentPiecePosition[3][0] + 1, currentPiecePosition[3][1]],
-      ];
+      if (currentPiecePosition[0][0] < 19 &&
+          currentPiecePosition[1][0] < 19 &&
+          currentPiecePosition[2][0] < 19 &&
+          currentPiecePosition[3][0] < 19) {
+        table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]--;
+        table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]--;
+        table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]--;
+        table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]--;
+        currentPiecePosition = [
+          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1]],
+          [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1]],
+          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1]],
+          [currentPiecePosition[3][0] + 1, currentPiecePosition[3][1]],
+        ];
 
-      table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
-      table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
-      table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
-      table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+        table[currentPiecePosition[0][0]][currentPiecePosition[0][1]]++;
+        table[currentPiecePosition[1][0]][currentPiecePosition[1][1]]++;
+        table[currentPiecePosition[2][0]][currentPiecePosition[2][1]]++;
+        table[currentPiecePosition[3][0]][currentPiecePosition[3][1]]++;
+      }
     }
 
     if (checkCollision() == 2) {
@@ -402,6 +410,8 @@ class _GridPanelState extends State<GridPanel> {
       --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       if ((currentPiecePosition[2][0] >= 2 &&
               currentPiecePosition[2][0] <= 18) &&
+          currentPiecePosition[2][1] >= 2 &&
+          currentPiecePosition[2][1] <= 8 &&
           table[currentPiecePosition[0][0] - 2]
                   [currentPiecePosition[0][1] + 2] ==
               0 &&
@@ -434,43 +444,53 @@ class _GridPanelState extends State<GridPanel> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     } else if (pieceRotation == Rotation.t90) {
-      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (currentPiecePosition[2][1] >= 2 &&
-          currentPiecePosition[2][1] <= 8 &&
-          table[currentPiecePosition[0][0] + 2]
-                  [currentPiecePosition[0][1] - 2] ==
-              0 &&
-          table[currentPiecePosition[1][0] + 1]
-                  [currentPiecePosition[1][1] - 1] ==
-              0 &&
-          table[currentPiecePosition[2][0]][currentPiecePosition[2][1]] == 0 &&
-          table[currentPiecePosition[3][0] - 1]
-                  [currentPiecePosition[3][1] + 1] ==
-              0) {
-        currentPiecePosition = [
-          [currentPiecePosition[0][0] + 2, currentPiecePosition[0][1] - 2],
-          [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1] - 1],
-          [currentPiecePosition[2][0], currentPiecePosition[2][1]],
-          [currentPiecePosition[3][0] - 1, currentPiecePosition[3][1] + 1],
-        ];
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-        success = true;
-        refresh();
+      try {
+        --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        if (currentPiecePosition[2][1] >= 2 &&
+            currentPiecePosition[2][1] <= 8 &&
+            currentPiecePosition[2][0] >= 2 &&
+            currentPiecePosition[2][0] <= 18 &&
+            table[currentPiecePosition[0][0] + 2]
+                    [currentPiecePosition[0][1] - 2] ==
+                0 &&
+            table[currentPiecePosition[1][0] + 1]
+                    [currentPiecePosition[1][1] - 1] ==
+                0 &&
+            table[currentPiecePosition[2][0]][currentPiecePosition[2][1]] ==
+                0 &&
+            table[currentPiecePosition[3][0] - 1]
+                    [currentPiecePosition[3][1] + 1] ==
+                0) {
+          currentPiecePosition = [
+            [currentPiecePosition[0][0] + 2, currentPiecePosition[0][1] - 2],
+            [currentPiecePosition[1][0] + 1, currentPiecePosition[1][1] - 1],
+            [currentPiecePosition[2][0], currentPiecePosition[2][1]],
+            [currentPiecePosition[3][0] - 1, currentPiecePosition[3][1] + 1],
+          ];
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+          success = true;
+          refresh();
+          if (currentPiecePosition[3][0] == 18) {
+            secondChance = 0;
+          } else if (currentPiecePosition[3][0] == 19) {
+            secondChance = 1;
+          }
+          pieceRotation = Rotation.base;
+          if (success == false) {
+            ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+            ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+            ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+            ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+          }
+        }
+      } catch (e) {}
 
-        pieceRotation = Rotation.base;
-      }
-      if (success == false) {
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      }
       print('Giota');
     }
   }
@@ -479,43 +499,51 @@ class _GridPanelState extends State<GridPanel> {
   void rotateLamda() {
     bool success = false;
     if (pieceRotation == Rotation.base) {
-      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (currentPiecePosition[1][0] >= 1 &&
-          currentPiecePosition[1][0] <= 18 &&
-          currentPiecePosition[1][1] >= 1 &&
-          currentPiecePosition[1][1] <= 8 &&
-          table[currentPiecePosition[0][0] + 1]
-                  [currentPiecePosition[0][1] - 1] ==
-              0 &&
-          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
-          table[currentPiecePosition[2][0] - 1]
-                  [currentPiecePosition[2][1] + 1] ==
-              0 &&
-          table[currentPiecePosition[3][0] - 2][currentPiecePosition[3][1]] ==
-              0) {
-        currentPiecePosition = [
-          [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] - 1],
-          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
-          [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] + 1],
-          [currentPiecePosition[3][0] - 2, currentPiecePosition[3][1]],
-        ];
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-        success = true;
-        pieceRotation = Rotation.t90;
-      }
-      if (success == false) {
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      }
-      refresh();
+      try {
+        --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        if (currentPiecePosition[1][0] >= 1 &&
+            currentPiecePosition[1][0] <= 18 &&
+            currentPiecePosition[1][1] >= 1 &&
+            currentPiecePosition[1][1] <= 8 &&
+            table[currentPiecePosition[0][0] + 1]
+                    [currentPiecePosition[0][1] - 1] ==
+                0 &&
+            table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] ==
+                0 &&
+            table[currentPiecePosition[2][0] - 1]
+                    [currentPiecePosition[2][1] + 1] ==
+                0 &&
+            table[currentPiecePosition[3][0] - 2][currentPiecePosition[3][1]] ==
+                0) {
+          currentPiecePosition = [
+            [currentPiecePosition[0][0] + 1, currentPiecePosition[0][1] - 1],
+            [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+            [currentPiecePosition[2][0] - 1, currentPiecePosition[2][1] + 1],
+            [currentPiecePosition[3][0] - 2, currentPiecePosition[3][1]],
+          ];
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+          success = true;
+          pieceRotation = Rotation.t90;
+          if (currentPiecePosition[0][0] == 18) {
+            secondChance = 0;
+          } else if (currentPiecePosition[0][0] == 19) {
+            secondChance = 1;
+          }
+        }
+        if (success == false) {
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        }
+        refresh();
+      } catch (e) {}
     } else if (pieceRotation == Rotation.t90) {
       --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
       --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
@@ -555,81 +583,87 @@ class _GridPanelState extends State<GridPanel> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     } else if (pieceRotation == Rotation.t180) {
-      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (currentPiecePosition[1][0] >= 1 &&
-          currentPiecePosition[1][0] <= 18 &&
-          currentPiecePosition[1][1] >= 1 &&
-          currentPiecePosition[1][1] <= 8 &&
-          table[currentPiecePosition[0][0] - 1]
-                  [currentPiecePosition[0][1] + 1] ==
-              0 &&
-          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
-          table[currentPiecePosition[2][0] + 1]
-                  [currentPiecePosition[2][1] - 1] ==
-              0 &&
-          table[currentPiecePosition[3][0] + 2][currentPiecePosition[3][1]] ==
-              0) {
-        currentPiecePosition = [
-          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] + 1],
-          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
-          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] - 1],
-          [currentPiecePosition[3][0] + 2, currentPiecePosition[3][1]],
-        ];
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-        success = true;
-        refresh();
-        pieceRotation = Rotation.t270;
-      }
-      if (success == false) {
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      }
+      try {
+        --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        if (currentPiecePosition[1][0] >= 1 &&
+            currentPiecePosition[1][0] <= 18 &&
+            currentPiecePosition[1][1] >= 1 &&
+            currentPiecePosition[1][1] <= 8 &&
+            table[currentPiecePosition[0][0] - 1]
+                    [currentPiecePosition[0][1] + 1] ==
+                0 &&
+            table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] ==
+                0 &&
+            table[currentPiecePosition[2][0] + 1]
+                    [currentPiecePosition[2][1] - 1] ==
+                0 &&
+            table[currentPiecePosition[3][0] + 2][currentPiecePosition[3][1]] ==
+                0) {
+          currentPiecePosition = [
+            [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] + 1],
+            [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+            [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] - 1],
+            [currentPiecePosition[3][0] + 2, currentPiecePosition[3][1]],
+          ];
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+          success = true;
+          refresh();
+          pieceRotation = Rotation.t270;
+        }
+        if (success == false) {
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        }
+      } catch (e) {}
     } else if (pieceRotation == Rotation.t270) {
-      --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-      --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-      --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-      --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      if (currentPiecePosition[1][0] >= 1 &&
-          currentPiecePosition[1][0] <= 18 &&
-          currentPiecePosition[1][1] >= 1 &&
-          currentPiecePosition[1][1] <= 8 &&
-          table[currentPiecePosition[0][0] - 1]
-                  [currentPiecePosition[0][1] - 1] ==
-              0 &&
-          table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] == 0 &&
-          table[currentPiecePosition[2][0] + 1]
-                  [currentPiecePosition[2][1] + 1] ==
-              0 &&
-          table[currentPiecePosition[3][0]][currentPiecePosition[3][1] + 2] ==
-              0) {
-        currentPiecePosition = [
-          [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] - 1],
-          [currentPiecePosition[1][0], currentPiecePosition[1][1]],
-          [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] + 1],
-          [currentPiecePosition[3][0], currentPiecePosition[3][1] + 2],
-        ];
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-        success = true;
-        refresh();
-        pieceRotation = Rotation.base;
-      }
-      if (success == false) {
-        ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-        ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-        ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-        ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-      }
+      try {
+        --table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+        --table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+        --table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+        --table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        if (currentPiecePosition[1][0] >= 1 &&
+            currentPiecePosition[1][0] <= 18 &&
+            currentPiecePosition[1][1] >= 1 &&
+            currentPiecePosition[1][1] <= 8 &&
+            table[currentPiecePosition[0][0] - 1]
+                    [currentPiecePosition[0][1] - 1] ==
+                0 &&
+            table[currentPiecePosition[1][0]][currentPiecePosition[1][1]] ==
+                0 &&
+            table[currentPiecePosition[2][0] + 1]
+                    [currentPiecePosition[2][1] + 1] ==
+                0 &&
+            table[currentPiecePosition[3][0]][currentPiecePosition[3][1] + 2] ==
+                0) {
+          currentPiecePosition = [
+            [currentPiecePosition[0][0] - 1, currentPiecePosition[0][1] - 1],
+            [currentPiecePosition[1][0], currentPiecePosition[1][1]],
+            [currentPiecePosition[2][0] + 1, currentPiecePosition[2][1] + 1],
+            [currentPiecePosition[3][0], currentPiecePosition[3][1] + 2],
+          ];
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+          success = true;
+          refresh();
+          pieceRotation = Rotation.base;
+        }
+        if (success == false) {
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        }
+      } catch (e) {}
     }
     print('Lamda');
   }
