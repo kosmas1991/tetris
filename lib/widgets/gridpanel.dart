@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tetris/models/piece.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 
@@ -13,6 +14,7 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
+  bool speedUp = false;
   bool resetPressed = false;
   Random rand = Random();
   Column daUI = Column();
@@ -59,29 +61,75 @@ class _GridPanelState extends State<GridPanel> {
                 ))
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
           children: [
-            IconButton(
-              onPressed: () {
-                movePieceLeft();
-              },
-              icon: Icon(Icons.chevron_left_sharp),
-              iconSize: 60,
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(1000),
+                color: Colors.yellow,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  movePieceLeft();
+                },
+                icon: Icon(Icons.chevron_left_sharp),
+                iconSize: 50,
+              ),
             ),
-            IconButton(
-              onPressed: () {
-                movePieceRight();
-              },
-              icon: Icon(Icons.chevron_right_sharp),
-              iconSize: 60,
+            SizedBox(
+              width: 30,
             ),
-            IconButton(
-                onPressed: rotatePiece,
-                icon: Icon(
-                  Icons.rotate_90_degrees_ccw,
-                  size: 40,
-                )),
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(1000),
+                  color: Colors.yellow),
+              child: IconButton(
+                onPressed: () {
+                  movePieceRight();
+                },
+                icon: Icon(Icons.chevron_right_sharp),
+                iconSize: 50,
+              ),
+            ),
+            SizedBox(
+              width: 30,
+            ),
+            Listener(
+              //speedUp
+              onPointerDown: (event) {
+                speedUp = true;
+              },
+              //speedDown
+              onPointerUp: (event) {
+                speedUp = false;
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(1000),
+                    color: Colors.yellow),
+                child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.keyboard_double_arrow_down,
+                      size: 50,
+                    )),
+              ),
+            ),
+            SizedBox(
+              width: 30,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(1000),
+                  color: Colors.yellow),
+              child: IconButton(
+                  onPressed: rotatePiece,
+                  icon: Icon(
+                    Icons.rotate_90_degrees_ccw,
+                    size: 50,
+                  )),
+            ),
           ],
         ),
       ],
@@ -110,25 +158,47 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void gameLoop() {
+    int counter = 0;
     checkForTetris();
     setCurrentPiece();
     refresh();
-    Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (resetPressed) {
-        timer.cancel();
-        reset();
-      }
-      bool failed = downOneRow();
-      if (failed && timer.tick == 1) {
-        end = true;
-      }
-      if (failed) {
-        timer.cancel();
-        !end ? gameLoop() : print('end');
-      }
 
-      refresh();
-    });
+    setTimer(int millisecs, int counterFun) {
+      counter = counterFun;
+      Timer.periodic(Duration(milliseconds: millisecs), (timer) {
+        if (millisecs == 80 && speedUp == false) {
+          timer.cancel();
+          setTimer(500, counter);
+          return;
+        }
+        if (millisecs == 500 && speedUp == true) {
+          timer.cancel();
+
+          setTimer(80, counter);
+          return;
+        }
+        counter++;
+        // if reset is pressed
+        if (resetPressed) {
+          timer.cancel();
+          reset();
+        }
+        // exe downOneRow
+        bool failed = downOneRow();
+        if (failed && counter == 1) {
+          timer.cancel();
+          end = true;
+        }
+
+        if (failed) {
+          timer.cancel();
+          !end ? gameLoop() : print('end');
+        }
+        refresh();
+      });
+    }
+
+    speedUp ? setTimer(80, counter) : setTimer(500, counter);
   }
 
   void setCurrentPiece() {
@@ -1092,8 +1162,8 @@ class _GridPanelState extends State<GridPanel> {
                 //   style: TextStyle(color: Colors.white, fontSize: 12),
                 // ),
                 ),
-            height: 30,
-            width: 30,
+            height: 25,
+            width: 25,
             margin: EdgeInsets.all(1),
             decoration: BoxDecoration(
                 color: table[i][j] == 0 ? Colors.black : Colors.yellow,
