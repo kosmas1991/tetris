@@ -333,8 +333,8 @@ class _GridPanelState extends State<GridPanel> {
 
   void setCurrentPiece() {
     pieceRotation = Rotation.base;
-    // currentPiece = nextPieceToPlay;
-    currentPiece = Giota;
+    currentPiece = nextPieceToPlay;
+
     nextPieceToPlay = allThePieces[rand.nextInt(7)];
 
     currentPiecePosition = [
