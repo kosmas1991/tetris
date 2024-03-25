@@ -333,7 +333,8 @@ class _GridPanelState extends State<GridPanel> {
 
   void setCurrentPiece() {
     pieceRotation = Rotation.base;
-    currentPiece = nextPieceToPlay;
+    // currentPiece = nextPieceToPlay;
+    currentPiece = Giota;
     nextPieceToPlay = allThePieces[rand.nextInt(7)];
 
     currentPiecePosition = [
@@ -610,14 +611,16 @@ class _GridPanelState extends State<GridPanel> {
             secondChance = 1;
           }
           pieceRotation = Rotation.base;
-          if (success == false) {
-            ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
-            ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
-            ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
-            ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
-          }
         }
-      } catch (e) {}
+        if (success == false) {
+          ++table[currentPiecePosition[0][0]][currentPiecePosition[0][1]];
+          ++table[currentPiecePosition[1][0]][currentPiecePosition[1][1]];
+          ++table[currentPiecePosition[2][0]][currentPiecePosition[2][1]];
+          ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
+        }
+      } catch (e) {
+        print('ZZZZZZZZZZZZZZZZZZZZZZz');
+      }
 
       print('Giota');
     }
