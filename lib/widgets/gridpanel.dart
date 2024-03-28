@@ -13,6 +13,8 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
+  Timer ktimer = Timer.periodic(Duration(milliseconds: 400), (timer) {});
+  int counter = 0;
   bool moveRightPressedcont = false;
   bool moveLeftPressedcont = false;
   bool end = false;
@@ -231,7 +233,9 @@ class _GridPanelState extends State<GridPanel> {
                     borderRadius: BorderRadius.circular(1000),
                     color: Colors.yellow),
                 child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      forcedOneDown();
+                    },
                     icon: Icon(
                       Icons.keyboard_double_arrow_down,
                       size: 50,
@@ -286,26 +290,46 @@ class _GridPanelState extends State<GridPanel> {
     gameLoop();
   }
 
-  void gameLoop() {
-    int counter = 0;
-    checkForTetris();
-    setCurrentPiece();
-    refresh();
+  void forcedOneDown() {
+    Vibration.vibrate(duration: 10);
+    ktimer.cancel();
+    bool failed = downOneRow();
+    if (failed && counter == 1) {
+      end = true;
+    }
 
-    setTimer(int millisecs, int counterFun) {
+    if (failed) {
+      !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
+      ;
+    }
+    refresh();
+    gameLoop(fromForcedOneDOwn: true);
+  }
+
+  void gameLoop({bool fromForcedOneDOwn = false}) {
+    if (!fromForcedOneDOwn) {
+      counter = 0;
+      checkForTetris();
+      setCurrentPiece();
+      refresh();
+    }
+
+    void setTimer(int millisecs, int counterFun) {
       counter = counterFun;
-      Timer.periodic(Duration(milliseconds: millisecs), (timer) {
+      ktimer = Timer.periodic(Duration(milliseconds: millisecs), (timer) {
         if (millisecs == 80 && speedUp == false) {
           timer.cancel();
-          setTimer(500, counter);
+          setTimer(400, counter);
           return;
         }
-        if (millisecs == 500 && speedUp == true) {
+        if (millisecs == 400 && speedUp == true) {
           timer.cancel();
 
           setTimer(80, counter);
           return;
         }
+
+        //          not sure where to put it
         counter++;
         // if reset is pressed
         if (resetPressed) {
@@ -321,14 +345,70 @@ class _GridPanelState extends State<GridPanel> {
 
         if (failed) {
           timer.cancel();
-          !end ? gameLoop() : Vibration.vibrate(duration: 500);
+          !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
           ;
         }
         refresh();
       });
     }
 
-    speedUp ? setTimer(80, counter) : setTimer(500, counter);
+    if (fromForcedOneDOwn) {
+      ++counter;
+      ktimer.cancel();
+      setTimer(400, counter);
+    } else {
+      speedUp ? setTimer(80, counter) : setTimer(400, counter);
+    }
+  }
+
+  void endScreen() {
+    print('SHOW TETRIS MESSAGE');
+    for (int i = 0; i < 20; i++) {
+      for (int y = 0; y < 10; y++) {
+        table[i][y] = 0;
+      }
+    }
+    table[5][0] = 1;
+    table[6][0] = 1;
+    table[7][0] = 1;
+    table[8][0] = 1;
+    table[8][0] = 1;
+    table[9][0] = 1;
+    table[9][1] = 1;
+    table[5][3] = 1;
+    table[6][2] = 1;
+    table[7][2] = 1;
+    table[8][2] = 1;
+    table[9][3] = 1;
+    table[8][4] = 1;
+    table[7][4] = 1;
+    table[6][4] = 1;
+    table[5][7] = 1;
+    table[5][6] = 1;
+    table[5][5] = 1;
+    table[6][5] = 1;
+    table[7][5] = 1;
+    table[7][6] = 1;
+    table[8][6] = 1;
+    table[9][6] = 1;
+    table[9][5] = 1;
+    table[5][9] = 1;
+    table[5][8] = 1;
+    table[6][8] = 1;
+    table[7][8] = 1;
+    table[8][8] = 1;
+    table[9][8] = 1;
+
+    table[12][3] = 1;
+    table[12][6] = 1;
+    table[15][2] = 1;
+    table[14][3] = 1;
+    table[14][4] = 1;
+    table[14][5] = 1;
+    table[14][6] = 1;
+    table[15][7] = 1;
+
+    refresh();
   }
 
   void setCurrentPiece() {
@@ -1325,8 +1405,7 @@ class _GridPanelState extends State<GridPanel> {
         simpleRow.add(
           Container(
             child: Center(
-                // child:
-                // Text(
+                // child: Text(
                 //   '${i}/${j}',
                 //   style: TextStyle(color: Colors.white, fontSize: 12),
                 // ),
