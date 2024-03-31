@@ -13,7 +13,12 @@ class GridPanel extends StatefulWidget {
 }
 
 class _GridPanelState extends State<GridPanel> {
-  Timer ktimer = Timer.periodic(Duration(milliseconds: 400), (timer) {});
+  //bool fromSpeedSet = false;
+  int punishExcept = 0;
+  int punish = 0;
+  int slowSpeed = 800;
+  int fastSpeed = 80;
+  Timer ktimer = Timer.periodic(Duration(milliseconds: 1000), (timer) {});
   int counter = 0;
   bool moveRightPressedcont = false;
   bool moveLeftPressedcont = false;
@@ -29,8 +34,8 @@ class _GridPanelState extends State<GridPanel> {
   //dummy data
   var tableNextPiece = [
     [0, 0, 0, 0],
-    [1, 0, 0, 0],
-    [0, 0, 1, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
     [0, 0, 0, 0]
   ];
   Piece currentPiece = Omikron;
@@ -107,28 +112,91 @@ class _GridPanelState extends State<GridPanel> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             daUI,
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black38,
-              ),
-              height: 90,
-              width: 90,
-              child: Column(
-                children: [
-                  Text(
-                    'NEXT',
-                    style: TextStyle(color: Colors.yellow, fontSize: 20),
-                    textAlign: TextAlign.center,
+            Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black38,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  height: 90,
+                  width: 90,
+                  child: Column(
                     children: [
-                      nextPiece,
+                      Text(
+                        'NEXT',
+                        style: TextStyle(color: Colors.yellow, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          nextPiece,
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black38,
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        punish = punish + 1;
+                      },
+                      icon: Text(
+                        '+1',
+                        style: TextStyle(color: Colors.red, fontSize: 20),
+                      )),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black38,
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        punish = punish + 2;
+                      },
+                      icon: Text(
+                        '+2',
+                        style: TextStyle(color: Colors.red, fontSize: 20),
+                      )),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black38,
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        punish = punish + 3;
+                      },
+                      icon: Text(
+                        '+3',
+                        style: TextStyle(color: Colors.red, fontSize: 20),
+                      )),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black38,
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        punish = punish + 4;
+                      },
+                      icon: Text(
+                        '+4',
+                        style: TextStyle(color: Colors.red, fontSize: 20),
+                      )),
+                ),
+              ],
             )
           ],
         ),
@@ -150,8 +218,8 @@ class _GridPanelState extends State<GridPanel> {
                 },
                 child: Text(
                   'Reset',
-                  style:
-                      TextStyle(color: const Color.fromARGB(255, 117, 41, 36)),
+                  style: TextStyle(
+                      color: const Color.fromARGB(255, 117, 41, 36)),
                 ))
           ],
         ),
@@ -223,10 +291,16 @@ class _GridPanelState extends State<GridPanel> {
               //speedUp
               onPointerDown: (event) {
                 speedUp = true;
+                Timer(Duration(milliseconds: 300), () {
+                  setSpeed();
+                });
               },
               //speedDown
               onPointerUp: (event) {
                 speedUp = false;
+                Timer(Duration(milliseconds: 300), () {
+                  setSpeed();
+                });
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -275,6 +349,7 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void reset() {
+    ktimer.cancel();
     for (int line = 0; line < 20; line++) {
       for (int number = 0; number < 10; number++) {
         table[line][number] = 0;
@@ -287,12 +362,37 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void start() {
+    punishExcept = rand.nextInt(10);
     gameLoop();
   }
 
+  void punishWith(int punish) {
+    for (int i = 0; i < punish; i++) {
+      for (int m = 0; m < 19; m++) {
+        for (int n = 0; n < 10; n++) {
+          table[m][n] = table[m + 1][n];
+        }
+        if (m == 18) {
+          for (int n = 0; n < 10; n++) {
+            table[m + 1][n] = 0;
+          }
+        }
+        for (int n = 0; n < 10; n++) {
+          if (n != punishExcept) {
+            table[m + 1][n] = 1;
+          }
+        }
+      }
+    }
+  }
+
   void forcedOneDown() {
+    if (end) {
+      return;
+    }
     Vibration.vibrate(duration: 10);
     ktimer.cancel();
+
     bool failed = downOneRow();
     if (failed && counter == 1) {
       end = true;
@@ -302,12 +402,21 @@ class _GridPanelState extends State<GridPanel> {
       !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
       ;
     }
+    ++counter;
     refresh();
     gameLoop(fromForcedOneDOwn: true);
   }
 
-  void gameLoop({bool fromForcedOneDOwn = false}) {
-    if (!fromForcedOneDOwn) {
+  void setSpeed() {
+    ktimer.cancel();
+    gameLoop(fromSpeedSet: true);
+  }
+
+  void gameLoop({bool fromForcedOneDOwn = false, bool fromSpeedSet = false}) {
+    if (end) {
+      return;
+    }
+    if (!fromForcedOneDOwn && !fromSpeedSet) {
       counter = 0;
       checkForTetris();
       setCurrentPiece();
@@ -317,20 +426,20 @@ class _GridPanelState extends State<GridPanel> {
     void setTimer(int millisecs, int counterFun) {
       counter = counterFun;
       ktimer = Timer.periodic(Duration(milliseconds: millisecs), (timer) {
-        if (millisecs == 80 && speedUp == false) {
-          timer.cancel();
-          setTimer(400, counter);
-          return;
-        }
-        if (millisecs == 400 && speedUp == true) {
-          timer.cancel();
+        // if (millisecs == fastSpeed && speedUp == false) {
+        //   timer.cancel();
+        //   setTimer(slowSpeed, counter);
+        //   return;
+        // }
+        // if (millisecs == slowSpeed && speedUp == true) {
+        //   timer.cancel();
 
-          setTimer(80, counter);
-          return;
-        }
+        //   setTimer(fastSpeed, counter);
+        //   return;
+        // }
 
         //          not sure where to put it
-        counter++;
+        ++counter;
         // if reset is pressed
         if (resetPressed) {
           timer.cancel();
@@ -353,11 +462,15 @@ class _GridPanelState extends State<GridPanel> {
     }
 
     if (fromForcedOneDOwn) {
-      ++counter;
+      // ++counter;
       ktimer.cancel();
-      setTimer(400, counter);
+      setTimer(slowSpeed, counter);
+    } else if (fromSpeedSet && speedUp == true) {
+      setTimer(fastSpeed, counter);
+    } else if (fromSpeedSet && speedUp == false) {
+      setTimer(slowSpeed, counter);
     } else {
-      speedUp ? setTimer(80, counter) : setTimer(400, counter);
+      speedUp ? setTimer(fastSpeed, counter) : setTimer(slowSpeed, counter);
     }
   }
 
@@ -412,6 +525,8 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void setCurrentPiece() {
+    punishWith(punish);
+    punish = 0;
     pieceRotation = Rotation.base;
     currentPiece = nextPieceToPlay;
 
@@ -485,6 +600,9 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void movePieceRight() {
+    if (end) {
+      return;
+    }
     Vibration.vibrate(duration: 10);
     if (currentPiecePosition[0][1] == 9 ||
         currentPiecePosition[1][1] == 9 ||
@@ -527,6 +645,9 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void movePieceLeft() {
+    if (end) {
+      return;
+    }
     Vibration.vibrate(duration: 10);
     if (currentPiecePosition[0][1] == 0 ||
         currentPiecePosition[1][1] == 0 ||
@@ -587,6 +708,9 @@ class _GridPanelState extends State<GridPanel> {
   }
 
   void rotatePiece() {
+    if (end) {
+      return;
+    }
     Vibration.vibrate(duration: 10);
     switch (currentPiece.name) {
       case 'Omikron':
@@ -1410,8 +1534,8 @@ class _GridPanelState extends State<GridPanel> {
                 //   style: TextStyle(color: Colors.white, fontSize: 12),
                 // ),
                 ),
-            height: 25,
-            width: 25,
+            height: 20,
+            width: 20,
             margin: EdgeInsets.all(1),
             decoration: BoxDecoration(
                 color: table[i][j] == 0 ? Colors.black : Colors.yellow,
