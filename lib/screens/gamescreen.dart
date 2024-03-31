@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:tetris/models/piece.dart';
@@ -12,8 +15,16 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
+class SpaceIntent extends Intent {}
+
+class ArrowLeftIntent extends Intent {}
+
+class ArrowRightIntent extends Intent {}
+
+class ArrowDownIntent extends Intent {}
+
 class _GameScreenState extends State<GameScreen> {
-    //bool fromSpeedSet = false;
+  //bool fromSpeedSet = false;
   int punishExcept = 0;
   int punish = 0;
   int slowSpeed = 800;
@@ -47,9 +58,10 @@ class _GameScreenState extends State<GameScreen> {
     [0, 0],
   ];
   int secondChance = 0;
+
   @override
   Widget build(BuildContext context) {
-        switch (nextPieceToPlay.name) {
+    switch (nextPieceToPlay.name) {
       case 'Omikron':
         tableNextPiece = [
           [0, 1, 1, 0],
@@ -107,241 +119,306 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       backgroundColor: Colors.grey,
       body: SafeArea(
-        child: Column(children: 
-         [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: Stack(
           children: [
-            daUI,
-            Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38,
-                  ),
-                  height: 90,
-                  width: 90,
-                  child: Column(
+            Image.asset(
+              'assets/images/tetris.jpg',
+              fit: BoxFit.fitHeight,
+              height: double.infinity,
+            ),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'NEXT',
-                        style: TextStyle(color: Colors.yellow, fontSize: 20),
-                        textAlign: TextAlign.center,
+                      Container(
+                        color: const Color.fromARGB(255, 228, 100, 143),
+                        child: daUI,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Column(
                         children: [
-                          nextPiece,
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.black38,
+                            ),
+                            height: 90,
+                            width: 90,
+                            child: Column(
+                              children: [
+                                Text(
+                                  'NEXT',
+                                  style: TextStyle(
+                                      color: Colors.yellow, fontSize: 20),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    nextPiece,
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.black38,
+                            ),
+                            child: IconButton(
+                                onPressed: () {
+                                  punish = punish + 1;
+                                },
+                                icon: Text(
+                                  '+1',
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 20),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.black38,
+                            ),
+                            child: IconButton(
+                                onPressed: () {
+                                  punish = punish + 2;
+                                },
+                                icon: Text(
+                                  '+2',
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 20),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.black38,
+                            ),
+                            child: IconButton(
+                                onPressed: () {
+                                  punish = punish + 3;
+                                },
+                                icon: Text(
+                                  '+3',
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 20),
+                                )),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.black38,
+                            ),
+                            child: IconButton(
+                                onPressed: () {
+                                  punish = punish + 4;
+                                },
+                                icon: Text(
+                                  '+4',
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 20),
+                                )),
+                          ),
                         ],
                       )
                     ],
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38,
-                  ),
-                  child: IconButton(
-                      onPressed: () {
-                        punish = punish + 1;
-                      },
-                      icon: Text(
-                        '+1',
-                        style: TextStyle(color: Colors.red, fontSize: 20),
-                      )),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38,
-                  ),
-                  child: IconButton(
-                      onPressed: () {
-                        punish = punish + 2;
-                      },
-                      icon: Text(
-                        '+2',
-                        style: TextStyle(color: Colors.red, fontSize: 20),
-                      )),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38,
-                  ),
-                  child: IconButton(
-                      onPressed: () {
-                        punish = punish + 3;
-                      },
-                      icon: Text(
-                        '+3',
-                        style: TextStyle(color: Colors.red, fontSize: 20),
-                      )),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38,
-                  ),
-                  child: IconButton(
-                      onPressed: () {
-                        punish = punish + 4;
-                      },
-                      icon: Text(
-                        '+4',
-                        style: TextStyle(color: Colors.red, fontSize: 20),
-                      )),
-                ),
-              ],
-            )
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-                onPressed: () {
-                  start();
-                },
-                child: Text(
-                  'Start',
-                  style: TextStyle(color: Color.fromARGB(255, 36, 116, 39)),
-                )),
-            TextButton(
-                onPressed: () {
-                  resetPressed = true;
-                  end ? reset() : null;
-                },
-                child: Text(
-                  'Reset',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 117, 41, 36)),
-                ))
-          ],
-        ),
-        Wrap(
-          alignment: WrapAlignment.center,
-          children: [
-            Listener(
-              onPointerDown: (event) {
-                moveLeftPressedcont = true;
-                Timer.periodic(Duration(milliseconds: 150), (timer) {
-                  if (!moveLeftPressedcont) {
-                    timer.cancel();
-                    return;
-                  }
-                  timer.tick > 2 ? movePieceLeft() : null;
-                });
-              },
-              onPointerUp: (event) {
-                moveLeftPressedcont = false;
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1000),
-                  color: Colors.yellow,
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    !moveLeftPressedcont ? movePieceLeft() : null;
-                  },
-                  icon: Icon(Icons.chevron_left_sharp),
-                  iconSize: 50,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 30,
-            ),
-            Listener(
-              onPointerDown: (event) {
-                moveRightPressedcont = true;
-                Timer.periodic(Duration(milliseconds: 150), (timer) {
-                  if (!moveRightPressedcont) {
-                    timer.cancel();
-                    return;
-                  }
-                  timer.tick > 2 ? movePieceRight() : null;
-                });
-              },
-              onPointerUp: (event) {
-                moveRightPressedcont = false;
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(1000),
-                    color: Colors.yellow),
-                child: IconButton(
-                  onPressed: () {
-                    !moveRightPressedcont ? movePieceRight() : null;
-                  },
-                  icon: Icon(Icons.chevron_right_sharp),
-                  iconSize: 50,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 30,
-            ),
-            Listener(
-              //speedUp
-              onPointerDown: (event) {
-                speedUp = true;
-                Timer(Duration(milliseconds: 300), () {
-                  setSpeed();
-                });
-              },
-              //speedDown
-              onPointerUp: (event) {
-                speedUp = false;
-                Timer(Duration(milliseconds: 300), () {
-                  setSpeed();
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(1000),
-                    color: Colors.yellow),
-                child: IconButton(
-                    onPressed: () {
-                      forcedOneDown();
+                  Shortcuts(
+                    shortcuts: {
+                      LogicalKeySet(LogicalKeyboardKey.space): SpaceIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+                          ArrowLeftIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.arrowRight):
+                          ArrowRightIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.arrowDown):
+                          ArrowDownIntent(),
                     },
-                    icon: Icon(
-                      Icons.keyboard_double_arrow_down,
-                      size: 50,
-                    )),
+                    child: Actions(
+                      actions: {
+                        SpaceIntent: CallbackAction<SpaceIntent>(
+                          onInvoke: (intent) {
+                            return rotatePiece();
+                          },
+                        ),
+                        ArrowLeftIntent: CallbackAction<ArrowLeftIntent>(
+                          onInvoke: (intent) {
+                            return movePieceLeft();
+                          },
+                        ),
+                        ArrowRightIntent: CallbackAction<ArrowRightIntent>(
+                          onInvoke: (intent) {
+                            return movePieceRight();
+                          },
+                        ),
+                        ArrowDownIntent:
+                            CallbackAction<ArrowDownIntent>(onInvoke: (intent) {
+                          return forcedOneDown();
+                        })
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                              onPressed: () {
+                                start();
+                              },
+                              child: Text(
+                                'Start',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 36, 116, 39)),
+                              )),
+                          TextButton(
+                              onPressed: () {
+                                resetPressed = true;
+                                end ? reset() : null;
+                              },
+                              child: Text(
+                                'Reset',
+                                style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 117, 41, 36)),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      Listener(
+                        onPointerDown: (event) {
+                          moveLeftPressedcont = true;
+                          Timer.periodic(Duration(milliseconds: 150), (timer) {
+                            if (!moveLeftPressedcont) {
+                              timer.cancel();
+                              return;
+                            }
+                            timer.tick > 2 ? movePieceLeft() : null;
+                          });
+                        },
+                        onPointerUp: (event) {
+                          moveLeftPressedcont = false;
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 5),
+                            borderRadius: BorderRadius.circular(1000),
+                            color: Colors.yellow,
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              !moveLeftPressedcont ? movePieceLeft() : null;
+                            },
+                            icon: Icon(Icons.chevron_left_sharp),
+                            iconSize: 50,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Listener(
+                        onPointerDown: (event) {
+                          moveRightPressedcont = true;
+                          Timer.periodic(Duration(milliseconds: 150), (timer) {
+                            if (!moveRightPressedcont) {
+                              timer.cancel();
+                              return;
+                            }
+                            timer.tick > 2 ? movePieceRight() : null;
+                          });
+                        },
+                        onPointerUp: (event) {
+                          moveRightPressedcont = false;
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black, width: 5),
+                              borderRadius: BorderRadius.circular(1000),
+                              color: Colors.yellow),
+                          child: IconButton(
+                            onPressed: () {
+                              !moveRightPressedcont ? movePieceRight() : null;
+                            },
+                            icon: Icon(Icons.chevron_right_sharp),
+                            iconSize: 50,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Listener(
+                        //speedUp
+                        onPointerDown: (event) {
+                          speedUp = true;
+                          Timer(Duration(milliseconds: 300), () {
+                            setSpeed();
+                          });
+                        },
+                        //speedDown
+                        onPointerUp: (event) {
+                          speedUp = false;
+                          Timer(Duration(milliseconds: 300), () {
+                            setSpeed();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black, width: 5),
+                              borderRadius: BorderRadius.circular(1000),
+                              color: Colors.yellow),
+                          child: IconButton(
+                              onPressed: () {
+                                forcedOneDown();
+                              },
+                              icon: Icon(
+                                Icons.keyboard_double_arrow_down,
+                                size: 50,
+                              )),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 5),
+                            borderRadius: BorderRadius.circular(1000),
+                            color: Colors.yellow),
+                        child: IconButton(
+                            onPressed: rotatePiece,
+                            icon: Icon(
+                              Icons.rotate_90_degrees_ccw,
+                              size: 50,
+                            )),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              width: 30,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1000),
-                  color: Colors.yellow),
-              child: IconButton(
-                  onPressed: rotatePiece,
-                  icon: Icon(
-                    Icons.rotate_90_degrees_ccw,
-                    size: 50,
-                  )),
-            ),
           ],
-        ),
-      ],
-          
         ),
       ),
     );
   }
-   @override
+
+  @override
   void initState() {
     nextPieceToPlay = allThePieces[rand.nextInt(7)];
+    //auto start
+    //start();
     super.initState();
   }
 
@@ -1541,7 +1618,7 @@ class _GameScreenState extends State<GameScreen> {
             width: 20,
             margin: EdgeInsets.all(1),
             decoration: BoxDecoration(
-                color: table[i][j] == 0 ? Colors.black : Colors.yellow,
+                color: table[i][j] == 0 ? Colors.black : Colors.amberAccent,
                 borderRadius: BorderRadius.circular(3)),
           ),
         );
@@ -1578,7 +1655,7 @@ class _GameScreenState extends State<GameScreen> {
             width: 10,
             margin: EdgeInsets.all(1),
             decoration: BoxDecoration(
-                color: table[i][j] == 0 ? Colors.black : Colors.yellow,
+                color: table[i][j] == 0 ? Colors.black : Colors.amberAccent,
                 borderRadius: BorderRadius.circular(1)),
           ),
         );
