@@ -1,7 +1,8 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tetris/screens/lobbyscreen.dart';
 import 'package:tetris/screens/register_screen.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key, required this.title}) : super(key: key);
@@ -12,6 +13,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  FirebaseAuth auth = FirebaseAuth.instance;
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   var rememberValue = false;
 
@@ -40,13 +44,14 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   TextFormField(
+                    controller: email,
                     validator: (value) => EmailValidator.validate(value!)
                         ? null
                         : "Please enter a valid email",
                     maxLines: 1,
                     decoration: InputDecoration(
                       hintText: 'Enter your email',
-                      prefixIcon  : const Icon(Icons.email),
+                      prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -56,6 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: password,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
@@ -89,7 +95,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {}
+                      if (_formKey.currentState!.validate()) {
+                        Login(email: email.text, password: password.text);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(40, 15, 40, 15),
@@ -129,5 +137,33 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void Login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await auth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => LobbyScreen(
+            cred: value,
+          ),
+        ));
+      });
+    } catch (err) {
+      if (err.toString().contains('password is invalid')) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Wrong password')));
+      } else if (err.toString().contains('There is no user')) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('No such user')));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed')));
+      }
+    }
   }
 }

@@ -1,6 +1,9 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tetris/screens/lobbyscreen.dart';
 import 'package:tetris/screens/login_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key, required this.title}) : super(key: key);
@@ -11,8 +14,14 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore fire = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
   var rememberValue = false;
+  TextEditingController name = TextEditingController();
+  TextEditingController lastname = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          controller: name,
                           maxLines: 1,
                           decoration: InputDecoration(
                             hintText: 'First name',
@@ -57,6 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       Expanded(
                         child: TextFormField(
+                          controller: lastname,
                           maxLines: 1,
                           decoration: InputDecoration(
                             hintText: 'Last name',
@@ -73,6 +84,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: email,
                     validator: (value) => EmailValidator.validate(value!)
                         ? null
                         : "Please enter a valid email",
@@ -89,6 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: password,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
@@ -110,7 +123,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {}
+                      if (_formKey.currentState!.validate()) {
+                        Register(
+                            name: name.text,
+                            lastname: lastname.text,
+                            email: email.text,
+                            password: password.text);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(40, 15, 40, 15),
@@ -151,4 +170,52 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
+  void Register({
+    required String name,
+    required String lastname,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await auth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((value) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => LobbyScreen(
+            cred: value,
+          ),
+        ));
+
+        addUserToUsers(
+            name: name,
+            lastname: lastname,
+            email: email,
+            uuid: value.user!.uid);
+      });
+    } catch (err) {
+      if (err.toString().contains('already in use')) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('User already exists')));
+      } else {
+        printError(err.toString());
+      }
+    }
+  }
+
+  void addUserToUsers({
+    required String name,
+    required String lastname,
+    required String email,
+    required String uuid,
+  }) async {
+    fire
+        .collection('users')
+        .doc(uuid)
+        .set({'name': name, 'lastname': lastname, 'email': email});
+  }
+}
+
+void printError(String text) {
+  print('\x1B[31m$text\x1B[0m');
 }
