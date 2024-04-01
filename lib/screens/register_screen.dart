@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,28 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController lastname = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+
+  late StreamSubscription<User?> user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user == null) {
+        printError('User is currently signed out!');
+      } else {
+        printError('User is signed in!');
+        printError(user.email.toString());
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => LobbyScreen(user: user),));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    user.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
           .then((value) {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => LobbyScreen(
-            cred: value,
+            user: value.user!,
           ),
         ));
 

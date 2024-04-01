@@ -236,6 +236,9 @@ class _GameScreenState extends State<GameScreen> {
                       )
                     ],
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Shortcuts(
                     shortcuts: {
                       LogicalKeySet(LogicalKeyboardKey.keyR): RotateIntent(),
@@ -271,14 +274,24 @@ class _GameScreenState extends State<GameScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TextButton(
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                  side: MaterialStateProperty.all(
+                                      BorderSide(width: 5)),
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.yellow)),
                               onPressed: () {
                                 start();
                               },
-                              child: Text(
-                                'Start',
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 36, 116, 39)),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Start',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  Icon(Icons.play_arrow)
+                                ],
                               )),
                           TextButton(
                               onPressed: () {
@@ -290,10 +303,25 @@ class _GameScreenState extends State<GameScreen> {
                                 style: TextStyle(
                                     color:
                                         const Color.fromARGB(255, 117, 41, 36)),
-                              ))
+                              )),
+                          TextButton(
+                              onPressed: () {
+                                // needs fix
+                                reset();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Back to Lobby',
+                                style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 117, 41, 36)),
+                              )),
                         ],
                       ),
                     ),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   Wrap(
                     alignment: WrapAlignment.center,

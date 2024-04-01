@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Container(
@@ -149,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
           .then((value) {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => LobbyScreen(
-            cred: value,
+            user: value.user!,
           ),
         ));
       });
