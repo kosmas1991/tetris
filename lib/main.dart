@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tetris/screens/gamescreen.dart';
+import 'package:tetris/screens/signupscreen.dart';
 
 void main() {
   runApp(const MyApp());

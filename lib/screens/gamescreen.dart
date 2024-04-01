@@ -13,7 +13,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class SpaceIntent extends Intent {}
+class RotateIntent extends Intent {}
 
 class ArrowLeftIntent extends Intent {}
 
@@ -123,6 +123,7 @@ class _GameScreenState extends State<GameScreen> {
               'assets/images/tetris.jpg',
               fit: BoxFit.fitHeight,
               height: double.infinity,
+              width: double.infinity,
             ),
             Container(
               padding: EdgeInsets.all(10),
@@ -132,7 +133,11 @@ class _GameScreenState extends State<GameScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        color: const Color.fromARGB(255, 228, 100, 143),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 228, 100, 143),
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          border: Border.all(color: Colors.black, width: 7),
+                        ),
                         child: daUI,
                       ),
                       SizedBox(
@@ -233,7 +238,7 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   Shortcuts(
                     shortcuts: {
-                      LogicalKeySet(LogicalKeyboardKey.space): SpaceIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.keyR): RotateIntent(),
                       LogicalKeySet(LogicalKeyboardKey.arrowLeft):
                           ArrowLeftIntent(),
                       LogicalKeySet(LogicalKeyboardKey.arrowRight):
@@ -243,7 +248,7 @@ class _GameScreenState extends State<GameScreen> {
                     },
                     child: Actions(
                       actions: {
-                        SpaceIntent: CallbackAction<SpaceIntent>(
+                        RotateIntent: CallbackAction<RotateIntent>(
                           onInvoke: (intent) {
                             return rotatePiece();
                           },
