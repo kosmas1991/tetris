@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -7,7 +8,14 @@ import 'package:tetris/variables/vars.dart' as table_var;
 import 'package:vibration/vibration.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final bool isOnline;
+  final bool iAmHost;
+  final String couchID;
+  const GameScreen(
+      {super.key,
+      required this.isOnline,
+      required this.iAmHost,
+      required this.couchID});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -21,8 +29,34 @@ class ArrowRightIntent extends Intent {}
 
 class ArrowDownIntent extends Intent {}
 
+List<List<int>> opponentTable = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+];
+
 class _GameScreenState extends State<GameScreen> {
   //bool fromSpeedSet = false;
+  Map<String, dynamic> couchData = {};
+
+  FirebaseFirestore fire = FirebaseFirestore.instance;
   int punishExcept = 0;
   int punish = 0;
   int slowSpeed = 800;
@@ -37,6 +71,7 @@ class _GameScreenState extends State<GameScreen> {
   Random rand = Random();
   Piece nextPieceToPlay = Omikron;
   Column daUI = Column();
+  Column daUISmall = Column();
   Column nextPiece = Column();
   var table = table_var.table;
   var table2 = table_var.table;
@@ -111,7 +146,7 @@ class _GameScreenState extends State<GameScreen> {
         ];
     }
     setState(() {
-      daUI = buildTable(table);
+      daUI = buildTable(table, size: 20, padding: 1, radius: 5);
       nextPiece = buildTable4multi4(tableNextPiece);
     });
     return Scaffold(
@@ -172,66 +207,75 @@ class _GameScreenState extends State<GameScreen> {
                           SizedBox(
                             height: 10,
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 1;
-                                },
-                                icon: Text(
-                                  '+1',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 2;
-                                },
-                                icon: Text(
-                                  '+2',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 3;
-                                },
-                                icon: Text(
-                                  '+3',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 4;
-                                },
-                                icon: Text(
-                                  '+4',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 1;
+                                      },
+                                      icon: Text(
+                                        '+1',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 2;
+                                      },
+                                      icon: Text(
+                                        '+2',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 3;
+                                      },
+                                      icon: Text(
+                                        '+3',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 4;
+                                      },
+                                      icon: Text(
+                                        '+4',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          daUISmall
                         ],
                       )
                     ],
@@ -445,17 +489,78 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  List<List<int>> retriveOpponentTable(Map<String, dynamic> data) {
+    List<List<int>> opTable = [];
+    List<int> listOfInts = widget.iAmHost
+        ? data['guestTable'].cast<int>()
+        : data['hostTable'].cast<int>();
+    List<int> row = [];
+    int counter = 0;
+    for (int i in listOfInts) {
+      row.add(i);
+      counter++;
+      if (counter % 10 == 0) {
+        opTable.add(row);
+        row = [];
+      }
+    }
+    //printError(opTable.toString());
+    return opTable;
+  }
+
   @override
   void initState() {
     nextPieceToPlay = allThePieces[rand.nextInt(7)];
     //auto start
-    //start();
+    widget.isOnline ? start() : null;
+    //
+    // COUCH DATA LiSTENER
+
+    widget.iAmHost
+        ? fire
+            .collection('couches')
+            .doc(widget.couchID)
+            .collection('smallTables')
+            .doc('guestTable')
+            .snapshots()
+            .listen((event) {
+            couchData = event.data()!;
+            //printError('couchData is type ${couchData.runtimeType}');
+
+            opponentTable = retriveOpponentTable(couchData);
+          })
+        : fire
+            .collection('couches')
+            .doc(widget.couchID)
+            .collection('smallTables')
+            .doc('hostTable')
+            .snapshots()
+            .listen((event) {
+            couchData = event.data()!;
+            //printError('couchData is type ${couchData.runtimeType}');
+
+            opponentTable = retriveOpponentTable(couchData);
+          });
+    //dump Data, to be deleted
+    //daUISmall = buildTable(table, size: 8, padding: 0, radius: 0);
     super.initState();
+  }
+
+  List<int> tableTo1DList(List<List<int>> table) {
+    List<int> list = [];
+    for (int i = 0; i < 20; i++) {
+      for (int y = 0; y < 10; y++) {
+        list.add(table[i][y]);
+      }
+    }
+
+    return list;
   }
 
   void refresh() {
     setState(() {
-      daUI = buildTable(table);
+      daUI = buildTable(table, size: 20, padding: 1, radius: 5);
+      daUISmall = buildTable(opponentTable, size: 8, padding: 0, radius: 0);
     });
   }
 
@@ -568,6 +673,25 @@ class _GameScreenState extends State<GameScreen> {
           !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
           ;
         }
+        //            UPDATE THE SMALL TABLE
+        widget.iAmHost
+            ? fire
+                .collection('couches')
+                .doc(widget.couchID)
+                .collection('smallTables')
+                .doc('hostTable')
+                .set(
+                {'hostTable': tableTo1DList(table)},
+              )
+            : fire
+                .collection('couches')
+                .doc(widget.couchID)
+                .collection('smallTables')
+                .doc('guestTable')
+                .set(
+                {'guestTable': tableTo1DList(table)},
+              );
+        //          QDONE
         refresh();
       });
     }
@@ -1631,7 +1755,8 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  Column buildTable(List<List<int>> table) {
+  Column buildTable(List<List<int>> table,
+      {required double size, required double padding, required double radius}) {
     List<Row> UIrows = [];
     List<Container> simpleRow = [];
     List<List<Container>> allTheRows = [];
@@ -1645,12 +1770,12 @@ class _GameScreenState extends State<GameScreen> {
                 //   style: TextStyle(color: Colors.white, fontSize: 12),
                 // ),
                 ),
-            height: 20,
-            width: 20,
-            margin: EdgeInsets.all(1),
+            height: size,
+            width: size,
+            margin: EdgeInsets.all(padding),
             decoration: BoxDecoration(
                 color: table[i][j] == 0 ? Colors.black : Colors.amberAccent,
-                borderRadius: BorderRadius.circular(3)),
+                borderRadius: BorderRadius.circular(radius)),
           ),
         );
       }

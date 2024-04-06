@@ -23,11 +23,7 @@ class _CouchScreenState extends State<CouchScreen> {
     //check if host
     auth.currentUser!.uid == widget.couchID ? iAmHost = true : iAmHost = false;
     //
-    fire
-        .collection('couches')
-        .doc(widget.couchID)
-        .snapshots()
-        .listen((event) {
+    fire.collection('couches').doc(widget.couchID).snapshots().listen((event) {
       if (event['guest'].toString().isNotEmpty && iAmHost) {
         guestJoined = true;
         setState(() {
@@ -38,7 +34,11 @@ class _CouchScreenState extends State<CouchScreen> {
       }
       if (event['ready']) {
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => GameScreen(),
+          builder: (context) => GameScreen(
+            couchID: widget.couchID,
+            iAmHost: iAmHost ? true : false,
+            isOnline: true,
+          ),
         ));
       }
     });

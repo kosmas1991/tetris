@@ -5,6 +5,7 @@ import 'package:tetris/screens/couchscreen.dart';
 import 'package:tetris/screens/gamescreen.dart';
 import 'package:tetris/screens/login_screen.dart';
 import 'package:tetris/screens/searchcouchscreen.dart';
+import 'package:tetris/variables/vars.dart';
 
 class LobbyScreen extends StatefulWidget {
   final User user;
@@ -44,7 +45,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
               ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => GameScreen(),
+                      builder: (context) => GameScreen(
+                        couchID: '',
+                        iAmHost: false,
+                        isOnline: false,
+                      ),
                     ));
                   },
                   child: Text('Play offline')),
@@ -85,19 +90,48 @@ class _LobbyScreenState extends State<LobbyScreen> {
   }
 
   void createCouch() async {
+    List<int> hostTable = tableTo1DList(table);
+    List<int> guestTable = tableTo1DList(table);
     await fire.collection('couches').doc(widget.user.uid).set({
       'hostname': widget.user.email,
       'host': widget.user.uid,
       'guest': '',
       'ready': false,
-      'hostTable': [],
-      'guestTable': [],
       'endHostWon': false,
       'endGuestWon': false,
     });
+    await fire
+        .collection('couches')
+        .doc(widget.user.uid)
+        .collection('smallTables')
+        .doc('hostTable')
+        .set({
+      'hostTable': hostTable,
+    });
+    await fire
+        .collection('couches')
+        .doc(widget.user.uid)
+        .collection('smallTables')
+        .doc('guestTable')
+        .set({
+      'guestTable': guestTable,
+    });
+
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => CouchScreen(couchID: widget.user.uid),
     ));
+  }
+
+  //nested lists are not allowed by firestore
+  List<int> tableTo1DList(List<List<int>> table) {
+    List<int> list = [];
+    for (int i = 0; i < 20; i++) {
+      for (int y = 0; y < 10; y++) {
+        list.add(table[i][y]);
+      }
+    }
+
+    return list;
   }
 
   void searchCouch() async {
