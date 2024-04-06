@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:tetris/models/piece.dart';
+import 'package:tetris/screens/register_screen.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 import 'package:vibration/vibration.dart';
 
@@ -49,7 +50,7 @@ List<List<int>> opponentTable = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
 class _GameScreenState extends State<GameScreen> {
@@ -275,7 +276,7 @@ class _GameScreenState extends State<GameScreen> {
                                             color: Colors.red, fontSize: 20),
                                       )),
                                 ),
-                          daUISmall
+                          widget.isOnline ? daUISmall : Container()
                         ],
                       )
                     ],
@@ -283,87 +284,91 @@ class _GameScreenState extends State<GameScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  Shortcuts(
-                    shortcuts: {
-                      LogicalKeySet(LogicalKeyboardKey.keyR): RotateIntent(),
-                      LogicalKeySet(LogicalKeyboardKey.arrowLeft):
-                          ArrowLeftIntent(),
-                      LogicalKeySet(LogicalKeyboardKey.arrowRight):
-                          ArrowRightIntent(),
-                      LogicalKeySet(LogicalKeyboardKey.arrowDown):
-                          ArrowDownIntent(),
-                    },
-                    child: Actions(
-                      actions: {
-                        RotateIntent: CallbackAction<RotateIntent>(
-                          onInvoke: (intent) {
-                            return rotatePiece();
+                  widget.isOnline
+                      ? Container()
+                      : Shortcuts(
+                          shortcuts: {
+                            LogicalKeySet(LogicalKeyboardKey.keyR):
+                                RotateIntent(),
+                            LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+                                ArrowLeftIntent(),
+                            LogicalKeySet(LogicalKeyboardKey.arrowRight):
+                                ArrowRightIntent(),
+                            LogicalKeySet(LogicalKeyboardKey.arrowDown):
+                                ArrowDownIntent(),
                           },
+                          child: Actions(
+                            actions: {
+                              RotateIntent: CallbackAction<RotateIntent>(
+                                onInvoke: (intent) {
+                                  return rotatePiece();
+                                },
+                              ),
+                              ArrowLeftIntent: CallbackAction<ArrowLeftIntent>(
+                                onInvoke: (intent) {
+                                  return movePieceLeft();
+                                },
+                              ),
+                              ArrowRightIntent:
+                                  CallbackAction<ArrowRightIntent>(
+                                onInvoke: (intent) {
+                                  return movePieceRight();
+                                },
+                              ),
+                              ArrowDownIntent: CallbackAction<ArrowDownIntent>(
+                                  onInvoke: (intent) {
+                                return forcedOneDown();
+                              })
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                    style: ButtonStyle(
+                                        side: MaterialStateProperty.all(
+                                            BorderSide(width: 5)),
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.yellow)),
+                                    onPressed: () {
+                                      start();
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Start',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        Icon(Icons.play_arrow)
+                                      ],
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      resetPressed = true;
+                                      end ? reset() : null;
+                                    },
+                                    child: Text(
+                                      'Reset',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 117, 41, 36)),
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      // needs fix
+                                      reset();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Back to Lobby',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 117, 41, 36)),
+                                    )),
+                              ],
+                            ),
+                          ),
                         ),
-                        ArrowLeftIntent: CallbackAction<ArrowLeftIntent>(
-                          onInvoke: (intent) {
-                            return movePieceLeft();
-                          },
-                        ),
-                        ArrowRightIntent: CallbackAction<ArrowRightIntent>(
-                          onInvoke: (intent) {
-                            return movePieceRight();
-                          },
-                        ),
-                        ArrowDownIntent:
-                            CallbackAction<ArrowDownIntent>(onInvoke: (intent) {
-                          return forcedOneDown();
-                        })
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                              style: ButtonStyle(
-                                  side: MaterialStateProperty.all(
-                                      BorderSide(width: 5)),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.yellow)),
-                              onPressed: () {
-                                start();
-                              },
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'Start',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  Icon(Icons.play_arrow)
-                                ],
-                              )),
-                          TextButton(
-                              onPressed: () {
-                                resetPressed = true;
-                                end ? reset() : null;
-                              },
-                              child: Text(
-                                'Reset',
-                                style: TextStyle(
-                                    color:
-                                        const Color.fromARGB(255, 117, 41, 36)),
-                              )),
-                          TextButton(
-                              onPressed: () {
-                                // needs fix
-                                reset();
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'Back to Lobby',
-                                style: TextStyle(
-                                    color:
-                                        const Color.fromARGB(255, 117, 41, 36)),
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
                   SizedBox(
                     height: 20,
                   ),
@@ -514,33 +519,37 @@ class _GameScreenState extends State<GameScreen> {
     //auto start
     widget.isOnline ? start() : null;
     //
-    // COUCH DATA LiSTENER
+    // Tables DATA LiSTENER
 
-    widget.iAmHost
-        ? fire
-            .collection('couches')
-            .doc(widget.couchID)
-            .collection('smallTables')
-            .doc('guestTable')
-            .snapshots()
-            .listen((event) {
-            couchData = event.data()!;
-            //printError('couchData is type ${couchData.runtimeType}');
+    widget.isOnline
+        ? {
+            widget.iAmHost
+                ? fire
+                    .collection('couches')
+                    .doc(widget.couchID)
+                    .collection('smallTables')
+                    .doc('guestTable')
+                    .snapshots()
+                    .listen((event) {
+                    couchData = event.data()!;
+                    //printError('couchData is type ${couchData.runtimeType}');
 
-            opponentTable = retriveOpponentTable(couchData);
-          })
-        : fire
-            .collection('couches')
-            .doc(widget.couchID)
-            .collection('smallTables')
-            .doc('hostTable')
-            .snapshots()
-            .listen((event) {
-            couchData = event.data()!;
-            //printError('couchData is type ${couchData.runtimeType}');
+                    opponentTable = retriveOpponentTable(couchData);
+                  })
+                : fire
+                    .collection('couches')
+                    .doc(widget.couchID)
+                    .collection('smallTables')
+                    .doc('hostTable')
+                    .snapshots()
+                    .listen((event) {
+                    couchData = event.data()!;
+                    //printError('couchData is type ${couchData.runtimeType}');
 
-            opponentTable = retriveOpponentTable(couchData);
-          });
+                    opponentTable = retriveOpponentTable(couchData);
+                  })
+          }
+        : null;
     //dump Data, to be deleted
     //daUISmall = buildTable(table, size: 8, padding: 0, radius: 0);
     super.initState();
@@ -580,6 +589,28 @@ class _GameScreenState extends State<GameScreen> {
   void start() {
     punishExcept = rand.nextInt(10);
     gameLoop();
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      printError(timer.tick.toString());
+      //            UPDATE THE SMALL TABLE
+      widget.iAmHost
+          ? fire
+              .collection('couches')
+              .doc(widget.couchID)
+              .collection('smallTables')
+              .doc('hostTable')
+              .set(
+              {'hostTable': tableTo1DList(table)},
+            )
+          : fire
+              .collection('couches')
+              .doc(widget.couchID)
+              .collection('smallTables')
+              .doc('guestTable')
+              .set(
+              {'guestTable': tableTo1DList(table)},
+            );
+      //          QDONE
+    });
   }
 
   void punishWith(int punish) {
@@ -673,25 +704,7 @@ class _GameScreenState extends State<GameScreen> {
           !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
           ;
         }
-        //            UPDATE THE SMALL TABLE
-        widget.iAmHost
-            ? fire
-                .collection('couches')
-                .doc(widget.couchID)
-                .collection('smallTables')
-                .doc('hostTable')
-                .set(
-                {'hostTable': tableTo1DList(table)},
-              )
-            : fire
-                .collection('couches')
-                .doc(widget.couchID)
-                .collection('smallTables')
-                .doc('guestTable')
-                .set(
-                {'guestTable': tableTo1DList(table)},
-              );
-        //          QDONE
+
         refresh();
       });
     }
