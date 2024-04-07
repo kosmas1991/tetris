@@ -589,9 +589,14 @@ class _GameScreenState extends State<GameScreen> {
   void start() {
     punishExcept = rand.nextInt(10);
     gameLoop();
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    updateSmallTablesEveryxSeconds(1);
+  }
+
+  void updateSmallTablesEveryxSeconds(int secs) {
+    //            UPDATE THE SMALL TABLE every x seconds
+    Timer.periodic(Duration(seconds: secs), (timer) {
       printError(timer.tick.toString());
-      //            UPDATE THE SMALL TABLE
+
       widget.iAmHost
           ? fire
               .collection('couches')
@@ -609,8 +614,44 @@ class _GameScreenState extends State<GameScreen> {
               .set(
               {'guestTable': tableTo1DList(table)},
             );
-      //          QDONE
     });
+    //          QDONE
+  }
+
+  void fetchMyPunishment() async {
+    widget.isOnline
+        ? await fire.collection('couches').doc(widget.couchID).get().then(
+            (value) async {
+              widget.iAmHost
+                  ? punish = value.data()!['punishHost']
+                  : punish = value.data()!['punishGuest'];
+              printError('punish +100 ->  ${punish + 100}');
+              //punishWith(punish);
+              //punish = 0;
+              widget.iAmHost
+                  ? await fire
+                      .collection('couches')
+                      .doc(widget.couchID)
+                      .update({'punishHost': 0})
+                  : await fire
+                      .collection('couches')
+                      .doc(widget.couchID)
+                      .update({'punishGuest': 0});
+              // pieceRotation = Rotation.base;
+              // currentPiece = nextPieceToPlay;
+
+              // nextPieceToPlay = allThePieces[rand.nextInt(7)];
+
+              // currentPiecePosition = [
+              //   currentPiece.part1,
+              //   currentPiece.part2,
+              //   currentPiece.part3,
+              //   currentPiece.part4
+              // ];
+              // addToTable(currentPiecePosition);
+            },
+          )
+        : null;
   }
 
   void punishWith(int punish) {
@@ -723,7 +764,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void endScreen() {
-    print('SHOW TETRIS MESSAGE');
+    //print('SHOW TETRIS MESSAGE');
     for (int i = 0; i < 20; i++) {
       for (int y = 0; y < 10; y++) {
         table[i][y] = 0;
@@ -772,7 +813,8 @@ class _GameScreenState extends State<GameScreen> {
     refresh();
   }
 
-  void setCurrentPiece() {
+  void setCurrentPiece() async {
+    fetchMyPunishment();
     punishWith(punish);
     punish = 0;
     pieceRotation = Rotation.base;
@@ -787,6 +829,7 @@ class _GameScreenState extends State<GameScreen> {
       currentPiece.part4
     ];
     addToTable(currentPiecePosition);
+    ;
   }
 
   void addToTable(List<List<int>> curr) {
@@ -979,7 +1022,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void rotateOmikron() {
-    print('Omikron');
+    //print('Omikron');
   }
 
   void rotateGiota() {
@@ -1071,10 +1114,10 @@ class _GameScreenState extends State<GameScreen> {
           ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
         }
       } catch (e) {
-        print('ZZZZZZZZZZZZZZZZZZZZZZz');
+        //print('ZZZZZZZZZZZZZZZZZZZZZZz');
       }
 
-      print('Giota');
+      //print('Giota');
     }
   }
 
@@ -1248,7 +1291,7 @@ class _GameScreenState extends State<GameScreen> {
         }
       } catch (e) {}
     }
-    print('Lamda');
+    //print('Lamda');
   }
 
   void rotateJey() {
@@ -1406,7 +1449,7 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Jey');
+    //print('Jey');
   }
 
 // part1: [0, 5], part2: [0, 4], part3: [1, 4], part4: [1, 3]
@@ -1491,7 +1534,7 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Sigma');
+    //print('Sigma');
   }
 
   void rotateZetta() {
@@ -1575,7 +1618,7 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Zetta');
+    //print('Zetta');
   }
 
   //   part1: [0, 4], part2: [1, 3], part3: [1, 4], part4: [1, 5]
@@ -1738,10 +1781,11 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Taf');
+    //print('Taf');
   }
 
-  void checkForTetris() {
+  void checkForTetris() async {
+    int punishCounter = 0;
     for (int i = 0; i < 20; i++) {
       // each row
       int counter = 0;
@@ -1753,19 +1797,32 @@ class _GameScreenState extends State<GameScreen> {
         }
       }
 
-      print(counter);
+      //print(counter);
       //check
       if (counter == 10) {
-        print('row is ${i} ');
+        //print('row is ${i} ');
         for (int row = i; row > 0; row--) {
           for (int cube = 0; cube < 10; cube++) {
             table[row][cube] = table[row - 1][cube];
           }
         }
-        print('TETRIS');
+        //print('TETRIS');
+        punishCounter++;
+        printError('punishCounter : ${punishCounter}');
         Vibration.vibrate(duration: 100);
       }
     }
+    (widget.isOnline)
+        ? widget.iAmHost
+            ? await fire
+                .collection('couches')
+                .doc(widget.couchID)
+                .update({'punishGuest': punishCounter})
+            : await fire
+                .collection('couches')
+                .doc(widget.couchID)
+                .update({'punishHost': punishCounter})
+        : null;
   }
 
   Column buildTable(List<List<int>> table,

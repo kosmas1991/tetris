@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tetris/screens/couchscreen.dart';
 import 'package:tetris/screens/gamescreen.dart';
 import 'package:tetris/screens/login_screen.dart';
@@ -28,45 +29,135 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Center(
+      body: Stack(children: [
+        Image.asset(
+          'assets/images/tetris.jpg',
+          fit: BoxFit.fitHeight,
+          height: double.infinity,
+          width: double.infinity,
+        ),
+        Container(
+          height: double.infinity,
+          padding: EdgeInsets.all(10),
           child: Column(
+            mainAxisSize: MainAxisSize.max,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Hello ${name}!'),
+                  Text(
+                    'Hello ${name}!',
+                    style: TextStyle(color: Colors.black, fontSize: 20),
+                  ),
                   TextButton(
+                      style: ButtonStyle(
+                          side: MaterialStateProperty.all(BorderSide(width: 5)),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.redAccent)),
                       onPressed: () {
                         logout();
                       },
-                      child: Text('Log out')),
+                      child: Text(
+                        'Log out',
+                        style: TextStyle(color: Colors.white),
+                      )),
                 ],
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => GameScreen(
-                        couchID: '',
-                        iAmHost: false,
-                        isOnline: false,
-                      ),
-                    ));
-                  },
-                  child: Text('Play offline')),
-              ElevatedButton(
-                  onPressed: () {
-                    createCouch();
-                  },
-                  child: Text('Create a couch')),
-              ElevatedButton(
-                  onPressed: () {
-                    searchCouch();
-                  },
-                  child: Text('Search for a couch')),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                        style: ButtonStyle(
+                            side:
+                                MaterialStateProperty.all(BorderSide(width: 5)),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.yellow)),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => GameScreen(
+                              couchID: '',
+                              iAmHost: false,
+                              isOnline: false,
+                            ),
+                          ));
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.wifi_off_outlined,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              'Play offline',
+                              style: TextStyle(fontSize: 30),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ElevatedButton(
+                        style: ButtonStyle(
+                            side:
+                                MaterialStateProperty.all(BorderSide(width: 5)),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.yellow)),
+                        onPressed: () {
+                          createCouch();
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text('Create a couch',
+                                style: TextStyle(fontSize: 30)),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ElevatedButton(
+                        style: ButtonStyle(
+                            side:
+                                MaterialStateProperty.all(BorderSide(width: 5)),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.yellow)),
+                        onPressed: () {
+                          searchCouch();
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              size: 30,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text('Search for a couch',
+                                style: TextStyle(fontSize: 30)),
+                          ],
+                        )),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
-      ),
+      ]),
     );
   }
 
@@ -99,6 +190,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
       'ready': false,
       'endHostWon': false,
       'endGuestWon': false,
+      'punishHost': 0,
+      'punishGuest': 0,
     });
     await fire
         .collection('couches')

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +20,17 @@ class _CouchScreenState extends State<CouchScreen> {
   bool guestJoined = false;
   FirebaseFirestore fire = FirebaseFirestore.instance;
   FirebaseAuth auth = FirebaseAuth.instance;
+  StreamSubscription? test;
   @override
   void initState() {
     //check if host
     auth.currentUser!.uid == widget.couchID ? iAmHost = true : iAmHost = false;
     //
-    fire.collection('couches').doc(widget.couchID).snapshots().listen((event) {
+    test = fire
+        .collection('couches')
+        .doc(widget.couchID)
+        .snapshots()
+        .listen((event) {
       if (event['guest'].toString().isNotEmpty && iAmHost) {
         guestJoined = true;
         setState(() {
@@ -31,6 +38,7 @@ class _CouchScreenState extends State<CouchScreen> {
         });
 
         printError('guest joinned');
+       
       }
       if (event['ready']) {
         Navigator.of(context).push(MaterialPageRoute(
@@ -40,6 +48,7 @@ class _CouchScreenState extends State<CouchScreen> {
             isOnline: true,
           ),
         ));
+        test!.cancel();
       }
     });
     super.initState();
