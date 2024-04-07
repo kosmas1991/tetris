@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:tetris/models/piece.dart';
 import 'package:tetris/screens/register_screen.dart';
+import 'package:tetris/screens/winorlosescreen.dart';
 import 'package:tetris/variables/vars.dart' as table_var;
 import 'package:vibration/vibration.dart';
 
@@ -587,9 +588,51 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void start() {
+    checkOnlineWin();
     punishExcept = rand.nextInt(10);
     gameLoop();
     updateSmallTablesEveryxSeconds(1);
+  }
+
+  void checkOnlineWin() async {
+    if (widget.isOnline) {
+      ktimer.cancel();
+      await fire
+          .collection('couches')
+          .doc(widget.couchID)
+          .snapshots()
+          .listen((event) {
+        bool endHostWon = event.data()!['endHostWon'];
+        bool endGuestWon = event.data()!['endGuestWon'];
+        if (endGuestWon || endHostWon) {
+          if (endHostWon && widget.iAmHost) {
+            printError('I (host) WON !!!!!!');
+            end = true;
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: true),
+            ));
+          } else if (endHostWon && !widget.iAmHost) {
+            printError('I (guest) LOST !!!!!');
+            end = true;
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: false),
+            ));
+          } else if (endGuestWon && !widget.iAmHost) {
+            end = true;
+            printError('I (guest) WON !!!!!!');
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: true),
+            ));
+          } else if (endGuestWon && widget.iAmHost) {
+            end = true;
+            printError('I (host) LOST !!!!!');
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: false),
+            ));
+          }
+        }
+      });
+    }
   }
 
   void updateSmallTablesEveryxSeconds(int secs) {
@@ -687,7 +730,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     if (failed) {
-      !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
+      !end ? gameLoop() : {endScreen(false), Vibration.vibrate(duration: 500)};
       ;
     }
     ++counter;
@@ -751,7 +794,9 @@ class _GameScreenState extends State<GameScreen> {
 
         if (failed) {
           timer.cancel();
-          !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
+          !end
+              ? gameLoop()
+              : {endScreen(false), Vibration.vibrate(duration: 500)};
         }
 
         refresh();
@@ -771,52 +816,64 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  void endScreen() {
+  void endScreen(bool isWin) {
     //print('SHOW TETRIS MESSAGE');
     for (int i = 0; i < 20; i++) {
       for (int y = 0; y < 10; y++) {
         table[i][y] = 0;
       }
     }
-    table[5][0] = 1;
-    table[6][0] = 1;
-    table[7][0] = 1;
-    table[8][0] = 1;
-    table[8][0] = 1;
-    table[9][0] = 1;
-    table[9][1] = 1;
-    table[5][3] = 1;
-    table[6][2] = 1;
-    table[7][2] = 1;
-    table[8][2] = 1;
-    table[9][3] = 1;
-    table[8][4] = 1;
-    table[7][4] = 1;
-    table[6][4] = 1;
-    table[5][7] = 1;
-    table[5][6] = 1;
-    table[5][5] = 1;
-    table[6][5] = 1;
-    table[7][5] = 1;
-    table[7][6] = 1;
-    table[8][6] = 1;
-    table[9][6] = 1;
-    table[9][5] = 1;
-    table[5][9] = 1;
-    table[5][8] = 1;
-    table[6][8] = 1;
-    table[7][8] = 1;
-    table[8][8] = 1;
-    table[9][8] = 1;
-
-    table[12][3] = 1;
-    table[12][6] = 1;
-    table[15][2] = 1;
-    table[14][3] = 1;
-    table[14][4] = 1;
-    table[14][5] = 1;
-    table[14][6] = 1;
-    table[15][7] = 1;
+    !isWin
+        ? {
+            table[5][0] = 1,
+            table[6][0] = 1,
+            table[7][0] = 1,
+            table[8][0] = 1,
+            table[8][0] = 1,
+            table[9][0] = 1,
+            table[9][1] = 1,
+            table[5][3] = 1,
+            table[6][2] = 1,
+            table[7][2] = 1,
+            table[8][2] = 1,
+            table[9][3] = 1,
+            table[8][4] = 1,
+            table[7][4] = 1,
+            table[6][4] = 1,
+            table[5][7] = 1,
+            table[5][6] = 1,
+            table[5][5] = 1,
+            table[6][5] = 1,
+            table[7][5] = 1,
+            table[7][6] = 1,
+            table[8][6] = 1,
+            table[9][6] = 1,
+            table[9][5] = 1,
+            table[5][9] = 1,
+            table[5][8] = 1,
+            table[6][8] = 1,
+            table[7][8] = 1,
+            table[8][8] = 1,
+            table[9][8] = 1,
+            table[12][3] = 1,
+            table[12][6] = 1,
+            table[15][2] = 1,
+            table[14][3] = 1,
+            table[14][4] = 1,
+            table[14][5] = 1,
+            table[14][6] = 1,
+            table[15][7] = 1,
+          }
+        : {
+            table[12][3] = 1,
+            table[12][6] = 1,
+            table[15][2] = 1,
+            table[14][3] = 1,
+            table[14][4] = 1,
+            table[14][5] = 1,
+            table[14][6] = 1,
+            table[15][7] = 1,
+          };
 
     refresh();
   }
