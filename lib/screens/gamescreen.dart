@@ -713,7 +713,7 @@ class _GameScreenState extends State<GameScreen> {
 
     void setTimer(int millisecs, int counterFun) {
       counter = counterFun;
-      ktimer = Timer.periodic(Duration(milliseconds: millisecs), (timer) {
+      ktimer = Timer.periodic(Duration(milliseconds: millisecs), (timer) async {
         // if (millisecs == fastSpeed && speedUp == false) {
         //   timer.cancel();
         //   setTimer(slowSpeed, counter);
@@ -738,12 +738,20 @@ class _GameScreenState extends State<GameScreen> {
         if (failed && counter == 1) {
           timer.cancel();
           end = true;
+          widget.iAmHost
+              ? await fire
+                  .collection('couches')
+                  .doc(widget.couchID)
+                  .update({'endGuestWon': true})
+              : await fire
+                  .collection('couches')
+                  .doc(widget.couchID)
+                  .update({'endHostWon': true});
         }
 
         if (failed) {
           timer.cancel();
           !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
-          ;
         }
 
         refresh();
