@@ -659,20 +659,20 @@ class _GameScreenState extends State<GameScreen> {
           } else if (endHostWon && !widget.iAmHost) {
             printError('I (guest) LOST !!!!!');
             end = true;
-                  timerSmallTables.cancel();
+            timerSmallTables.cancel();
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: false),
             ));
           } else if (endGuestWon && !widget.iAmHost) {
             end = true;
-                  timerSmallTables.cancel();
+            timerSmallTables.cancel();
             printError('I (guest) WON !!!!!!');
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: true),
             ));
           } else if (endGuestWon && widget.iAmHost) {
             end = true;
-                  timerSmallTables.cancel();
+            timerSmallTables.cancel();
             printError('I (host) LOST !!!!!');
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: false),
@@ -1916,7 +1916,7 @@ class _GameScreenState extends State<GameScreen> {
             table[row][cube] = table[row - 1][cube];
           }
         }
-        //print('TETRIS');
+      
         punishCounter++;
         printError('punishCounter : ${punishCounter}');
         Vibration.vibrate(duration: 100);
@@ -1927,11 +1927,12 @@ class _GameScreenState extends State<GameScreen> {
             ? await fire
                 .collection('couches')
                 .doc(widget.couchID)
-                .update({'punishGuest': punishCounter})
+                .update({'punishGuest': FieldValue.increment(punishCounter)})
+            // .update({'punishGuest': punishCounter})
             : await fire
                 .collection('couches')
-                .doc(widget.couchID)
-                .update({'punishHost': punishCounter})
+                .doc(widget.couchID).update({'punishHost': FieldValue.increment(punishCounter)})
+                // .update({'punishHost': punishCounter})
         : null;
   }
 
