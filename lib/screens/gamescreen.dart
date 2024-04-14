@@ -1916,7 +1916,7 @@ class _GameScreenState extends State<GameScreen> {
             table[row][cube] = table[row - 1][cube];
           }
         }
-        //print('TETRIS');
+      
         punishCounter++;
         printError('punishCounter : ${punishCounter}');
         Vibration.vibrate(duration: 100);
