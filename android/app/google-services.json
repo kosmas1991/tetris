@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "425513032535",
+    "project_id": "tetris2-3f58d",
+    "storage_bucket": "tetris2-3f58d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425513032535:android:6088ea4dff67e46bac7c12",
+        "android_client_info": {
+          "package_name": "gr.techzombie.tetris"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnkWf4IU00RoXIg15ST8xF3xcS1ROvVjc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

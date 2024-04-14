@@ -1,13 +1,23 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:tetris/models/piece.dart';
-import 'package:tetris/variables/vars.dart' as table_var;
+import 'package:tetris/screens/register_screen.dart';
+import 'package:tetris/screens/winorlosescreen.dart';
+
 import 'package:vibration/vibration.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final bool isOnline;
+  final bool iAmHost;
+  final String couchID;
+  const GameScreen(
+      {super.key,
+      required this.isOnline,
+      required this.iAmHost,
+      required this.couchID});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -22,12 +32,83 @@ class ArrowRightIntent extends Intent {}
 class ArrowDownIntent extends Intent {}
 
 class _GameScreenState extends State<GameScreen> {
+  List<List<int>> opponentTable = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  List<List<int>> table = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  List<List<int>> table2 = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
   //bool fromSpeedSet = false;
+  Map<String, dynamic> couchData = {};
+
+  FirebaseFirestore fire = FirebaseFirestore.instance;
   int punishExcept = 0;
   int punish = 0;
   int slowSpeed = 800;
   int fastSpeed = 80;
   Timer ktimer = Timer.periodic(Duration(milliseconds: 1000), (timer) {});
+  Timer timerSmallTables =
+      Timer.periodic(Duration(milliseconds: 1000), (timer) {});
   int counter = 0;
   bool moveRightPressedcont = false;
   bool moveLeftPressedcont = false;
@@ -37,9 +118,9 @@ class _GameScreenState extends State<GameScreen> {
   Random rand = Random();
   Piece nextPieceToPlay = Omikron;
   Column daUI = Column();
+  Column daUISmall = Column();
   Column nextPiece = Column();
-  var table = table_var.table;
-  var table2 = table_var.table;
+
   //dummy data
   var tableNextPiece = [
     [0, 0, 0, 0],
@@ -111,7 +192,7 @@ class _GameScreenState extends State<GameScreen> {
         ];
     }
     setState(() {
-      daUI = buildTable(table);
+      daUI = buildTable(table, size: 20, padding: 1, radius: 5);
       nextPiece = buildTable4multi4(tableNextPiece);
     });
     return Scaffold(
@@ -172,69 +253,81 @@ class _GameScreenState extends State<GameScreen> {
                           SizedBox(
                             height: 10,
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 1;
-                                },
-                                icon: Text(
-                                  '+1',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 2;
-                                },
-                                icon: Text(
-                                  '+2',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 3;
-                                },
-                                icon: Text(
-                                  '+3',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black38,
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  punish = punish + 4;
-                                },
-                                icon: Text(
-                                  '+4',
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 20),
-                                )),
-                          ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 1;
+                                      },
+                                      icon: Text(
+                                        '+1',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 2;
+                                      },
+                                      icon: Text(
+                                        '+2',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 3;
+                                      },
+                                      icon: Text(
+                                        '+3',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.black38,
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        punish = punish + 4;
+                                      },
+                                      icon: Text(
+                                        '+4',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      )),
+                                ),
+                          widget.isOnline ? daUISmall : Container()
                         ],
                       )
                     ],
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   Shortcuts(
                     shortcuts: {
@@ -268,32 +361,59 @@ class _GameScreenState extends State<GameScreen> {
                           return forcedOneDown();
                         })
                       },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                start();
-                              },
-                              child: Text(
-                                'Start',
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 36, 116, 39)),
-                              )),
-                          TextButton(
-                              onPressed: () {
-                                resetPressed = true;
-                                end ? reset() : null;
-                              },
-                              child: Text(
-                                'Reset',
-                                style: TextStyle(
-                                    color:
-                                        const Color.fromARGB(255, 117, 41, 36)),
-                              ))
-                        ],
-                      ),
+                      child: widget.isOnline
+                          ? Container()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                    style: ButtonStyle(
+                                        side: MaterialStateProperty.all(
+                                            BorderSide(width: 5)),
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.yellow)),
+                                    onPressed: () {
+                                      start();
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Start',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        Icon(Icons.play_arrow)
+                                      ],
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      resetPressed = true;
+                                      end ? reset() : null;
+                                    },
+                                    child: Text(
+                                      'Reset',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 117, 41, 36)),
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      // needs fix
+                                      reset();
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Back to Lobby',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 117, 41, 36)),
+                                    )),
+                              ],
+                            ),
                     ),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   Wrap(
                     alignment: WrapAlignment.center,
@@ -417,22 +537,88 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  List<List<int>> retriveOpponentTable(Map<String, dynamic> data) {
+    List<List<int>> opTable = [];
+    List<int> listOfInts = widget.iAmHost
+        ? data['guestTable'].cast<int>()
+        : data['hostTable'].cast<int>();
+    List<int> row = [];
+    int counter = 0;
+    for (int i in listOfInts) {
+      row.add(i);
+      counter++;
+      if (counter % 10 == 0) {
+        opTable.add(row);
+        row = [];
+      }
+    }
+    //printError(opTable.toString());
+    return opTable;
+  }
+
   @override
   void initState() {
     nextPieceToPlay = allThePieces[rand.nextInt(7)];
     //auto start
-    //start();
+    widget.isOnline ? start() : null;
+    //
+    // Tables DATA LiSTENER
+
+    widget.isOnline
+        ? {
+            widget.iAmHost
+                ? fire
+                    .collection('couches')
+                    .doc(widget.couchID)
+                    .collection('smallTables')
+                    .doc('guestTable')
+                    .snapshots()
+                    .listen((event) {
+                    couchData = event.data()!;
+                    //printError('couchData is type ${couchData.runtimeType}');
+
+                    opponentTable = retriveOpponentTable(couchData);
+                  })
+                : fire
+                    .collection('couches')
+                    .doc(widget.couchID)
+                    .collection('smallTables')
+                    .doc('hostTable')
+                    .snapshots()
+                    .listen((event) {
+                    couchData = event.data()!;
+                    //printError('couchData is type ${couchData.runtimeType}');
+
+                    opponentTable = retriveOpponentTable(couchData);
+                  })
+          }
+        : null;
+    //dump Data, to be deleted
+    //daUISmall = buildTable(table, size: 8, padding: 0, radius: 0);
     super.initState();
+  }
+
+  List<int> tableTo1DList(List<List<int>> table) {
+    List<int> list = [];
+    for (int i = 0; i < 20; i++) {
+      for (int y = 0; y < 10; y++) {
+        list.add(table[i][y]);
+      }
+    }
+
+    return list;
   }
 
   void refresh() {
     setState(() {
-      daUI = buildTable(table);
+      daUI = buildTable(table, size: 20, padding: 1, radius: 5);
+      daUISmall = buildTable(opponentTable, size: 8, padding: 0, radius: 0);
     });
   }
 
   void reset() {
     ktimer.cancel();
+    timerSmallTables.cancel();
     for (int line = 0; line < 20; line++) {
       for (int number = 0; number < 10; number++) {
         table[line][number] = 0;
@@ -445,8 +631,118 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void start() {
+    checkOnlineWin();
     punishExcept = rand.nextInt(10);
     gameLoop();
+    updateSmallTablesEveryxSeconds(1);
+  }
+
+  void checkOnlineWin() async {
+    if (widget.isOnline) {
+      ktimer.cancel();
+      timerSmallTables.cancel();
+      await fire
+          .collection('couches')
+          .doc(widget.couchID)
+          .snapshots()
+          .listen((event) {
+        bool endHostWon = event.data()!['endHostWon'];
+        bool endGuestWon = event.data()!['endGuestWon'];
+        if (endGuestWon || endHostWon) {
+          if (endHostWon && widget.iAmHost) {
+            printError('I (host) WON !!!!!!');
+            end = true;
+            timerSmallTables.cancel();
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: true),
+            ));
+          } else if (endHostWon && !widget.iAmHost) {
+            printError('I (guest) LOST !!!!!');
+            end = true;
+                  timerSmallTables.cancel();
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: false),
+            ));
+          } else if (endGuestWon && !widget.iAmHost) {
+            end = true;
+                  timerSmallTables.cancel();
+            printError('I (guest) WON !!!!!!');
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: true),
+            ));
+          } else if (endGuestWon && widget.iAmHost) {
+            end = true;
+                  timerSmallTables.cancel();
+            printError('I (host) LOST !!!!!');
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WinOrLoseScreen(isWin: false),
+            ));
+          }
+        }
+      });
+    }
+  }
+
+  void updateSmallTablesEveryxSeconds(int secs) {
+    //            UPDATE THE SMALL TABLE every x seconds
+    timerSmallTables = Timer.periodic(Duration(seconds: secs), (timer) {
+      printError(' small tables ticker  ---- >  ${timer.tick.toString()}');
+
+      widget.iAmHost
+          ? fire
+              .collection('couches')
+              .doc(widget.couchID)
+              .collection('smallTables')
+              .doc('hostTable')
+              .set(
+              {'hostTable': tableTo1DList(table)},
+            )
+          : fire
+              .collection('couches')
+              .doc(widget.couchID)
+              .collection('smallTables')
+              .doc('guestTable')
+              .set(
+              {'guestTable': tableTo1DList(table)},
+            );
+    });
+    //          QDONE
+  }
+
+  void fetchMyPunishment() async {
+    widget.isOnline
+        ? await fire.collection('couches').doc(widget.couchID).get().then(
+            (value) async {
+              widget.iAmHost
+                  ? punish = value.data()!['punishHost']
+                  : punish = value.data()!['punishGuest'];
+              printError('punish +100 ->  ${punish + 100}');
+              //punishWith(punish);
+              //punish = 0;
+              widget.iAmHost
+                  ? await fire
+                      .collection('couches')
+                      .doc(widget.couchID)
+                      .update({'punishHost': 0})
+                  : await fire
+                      .collection('couches')
+                      .doc(widget.couchID)
+                      .update({'punishGuest': 0});
+              // pieceRotation = Rotation.base;
+              // currentPiece = nextPieceToPlay;
+
+              // nextPieceToPlay = allThePieces[rand.nextInt(7)];
+
+              // currentPiecePosition = [
+              //   currentPiece.part1,
+              //   currentPiece.part2,
+              //   currentPiece.part3,
+              //   currentPiece.part4
+              // ];
+              // addToTable(currentPiecePosition);
+            },
+          )
+        : null;
   }
 
   void punishWith(int punish) {
@@ -470,19 +766,25 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void forcedOneDown() {
-    if (end) {
-      return;
-    }
+    // if (end) {
+    //   return;
+    // }
     Vibration.vibrate(duration: 10);
     ktimer.cancel();
 
     bool failed = downOneRow();
     if (failed && counter == 1) {
       end = true;
+      timerSmallTables.cancel();
     }
 
     if (failed) {
-      !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
+      !end
+          ? gameLoop()
+          : {
+              endScreen(),
+              Vibration.vibrate(duration: 500),
+            };
       ;
     }
     ++counter;
@@ -508,7 +810,7 @@ class _GameScreenState extends State<GameScreen> {
 
     void setTimer(int millisecs, int counterFun) {
       counter = counterFun;
-      ktimer = Timer.periodic(Duration(milliseconds: millisecs), (timer) {
+      ktimer = Timer.periodic(Duration(milliseconds: millisecs), (timer) async {
         // if (millisecs == fastSpeed && speedUp == false) {
         //   timer.cancel();
         //   setTimer(slowSpeed, counter);
@@ -533,13 +835,24 @@ class _GameScreenState extends State<GameScreen> {
         if (failed && counter == 1) {
           timer.cancel();
           end = true;
+          timerSmallTables.cancel();
+          widget.iAmHost
+              ? await fire
+                  .collection('couches')
+                  .doc(widget.couchID)
+                  .update({'endGuestWon': true})
+              : await fire
+                  .collection('couches')
+                  .doc(widget.couchID)
+                  .update({'endHostWon': true});
         }
 
         if (failed) {
           timer.cancel();
+
           !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
-          ;
         }
+
         refresh();
       });
     }
@@ -558,56 +871,60 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void endScreen() {
-    print('SHOW TETRIS MESSAGE');
-    for (int i = 0; i < 20; i++) {
-      for (int y = 0; y < 10; y++) {
-        table[i][y] = 0;
+    if (widget.isOnline) {
+    } else {
+      //print('SHOW TETRIS MESSAGE');
+      for (int i = 0; i < 20; i++) {
+        for (int y = 0; y < 10; y++) {
+          table[i][y] = 0;
+        }
       }
+
+      table[5][0] = 1;
+      table[6][0] = 1;
+      table[7][0] = 1;
+      table[8][0] = 1;
+      table[8][0] = 1;
+      table[9][0] = 1;
+      table[9][1] = 1;
+      table[5][3] = 1;
+      table[6][2] = 1;
+      table[7][2] = 1;
+      table[8][2] = 1;
+      table[9][3] = 1;
+      table[8][4] = 1;
+      table[7][4] = 1;
+      table[6][4] = 1;
+      table[5][7] = 1;
+      table[5][6] = 1;
+      table[5][5] = 1;
+      table[6][5] = 1;
+      table[7][5] = 1;
+      table[7][6] = 1;
+      table[8][6] = 1;
+      table[9][6] = 1;
+      table[9][5] = 1;
+      table[5][9] = 1;
+      table[5][8] = 1;
+      table[6][8] = 1;
+      table[7][8] = 1;
+      table[8][8] = 1;
+      table[9][8] = 1;
+      table[12][3] = 1;
+      table[12][6] = 1;
+      table[15][2] = 1;
+      table[14][3] = 1;
+      table[14][4] = 1;
+      table[14][5] = 1;
+      table[14][6] = 1;
+      table[15][7] = 1;
+
+      refresh();
     }
-    table[5][0] = 1;
-    table[6][0] = 1;
-    table[7][0] = 1;
-    table[8][0] = 1;
-    table[8][0] = 1;
-    table[9][0] = 1;
-    table[9][1] = 1;
-    table[5][3] = 1;
-    table[6][2] = 1;
-    table[7][2] = 1;
-    table[8][2] = 1;
-    table[9][3] = 1;
-    table[8][4] = 1;
-    table[7][4] = 1;
-    table[6][4] = 1;
-    table[5][7] = 1;
-    table[5][6] = 1;
-    table[5][5] = 1;
-    table[6][5] = 1;
-    table[7][5] = 1;
-    table[7][6] = 1;
-    table[8][6] = 1;
-    table[9][6] = 1;
-    table[9][5] = 1;
-    table[5][9] = 1;
-    table[5][8] = 1;
-    table[6][8] = 1;
-    table[7][8] = 1;
-    table[8][8] = 1;
-    table[9][8] = 1;
-
-    table[12][3] = 1;
-    table[12][6] = 1;
-    table[15][2] = 1;
-    table[14][3] = 1;
-    table[14][4] = 1;
-    table[14][5] = 1;
-    table[14][6] = 1;
-    table[15][7] = 1;
-
-    refresh();
   }
 
-  void setCurrentPiece() {
+  void setCurrentPiece() async {
+    fetchMyPunishment();
     punishWith(punish);
     punish = 0;
     pieceRotation = Rotation.base;
@@ -622,6 +939,7 @@ class _GameScreenState extends State<GameScreen> {
       currentPiece.part4
     ];
     addToTable(currentPiecePosition);
+    ;
   }
 
   void addToTable(List<List<int>> curr) {
@@ -814,7 +1132,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void rotateOmikron() {
-    print('Omikron');
+    //print('Omikron');
   }
 
   void rotateGiota() {
@@ -906,10 +1224,10 @@ class _GameScreenState extends State<GameScreen> {
           ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
         }
       } catch (e) {
-        print('ZZZZZZZZZZZZZZZZZZZZZZz');
+        //print('ZZZZZZZZZZZZZZZZZZZZZZz');
       }
 
-      print('Giota');
+      //print('Giota');
     }
   }
 
@@ -1083,7 +1401,7 @@ class _GameScreenState extends State<GameScreen> {
         }
       } catch (e) {}
     }
-    print('Lamda');
+    //print('Lamda');
   }
 
   void rotateJey() {
@@ -1241,7 +1559,7 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Jey');
+    //print('Jey');
   }
 
 // part1: [0, 5], part2: [0, 4], part3: [1, 4], part4: [1, 3]
@@ -1326,7 +1644,7 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Sigma');
+    //print('Sigma');
   }
 
   void rotateZetta() {
@@ -1410,7 +1728,7 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Zetta');
+    //print('Zetta');
   }
 
   //   part1: [0, 4], part2: [1, 3], part3: [1, 4], part4: [1, 5]
@@ -1573,10 +1891,11 @@ class _GameScreenState extends State<GameScreen> {
         ++table[currentPiecePosition[3][0]][currentPiecePosition[3][1]];
       }
     }
-    print('Taf');
+    //print('Taf');
   }
 
-  void checkForTetris() {
+  void checkForTetris() async {
+    int punishCounter = 0;
     for (int i = 0; i < 20; i++) {
       // each row
       int counter = 0;
@@ -1588,22 +1907,36 @@ class _GameScreenState extends State<GameScreen> {
         }
       }
 
-      print(counter);
+      //print(counter);
       //check
       if (counter == 10) {
-        print('row is ${i} ');
+        //print('row is ${i} ');
         for (int row = i; row > 0; row--) {
           for (int cube = 0; cube < 10; cube++) {
             table[row][cube] = table[row - 1][cube];
           }
         }
-        print('TETRIS');
+        //print('TETRIS');
+        punishCounter++;
+        printError('punishCounter : ${punishCounter}');
         Vibration.vibrate(duration: 100);
       }
     }
+    (widget.isOnline)
+        ? widget.iAmHost
+            ? await fire
+                .collection('couches')
+                .doc(widget.couchID)
+                .update({'punishGuest': punishCounter})
+            : await fire
+                .collection('couches')
+                .doc(widget.couchID)
+                .update({'punishHost': punishCounter})
+        : null;
   }
 
-  Column buildTable(List<List<int>> table) {
+  Column buildTable(List<List<int>> table,
+      {required double size, required double padding, required double radius}) {
     List<Row> UIrows = [];
     List<Container> simpleRow = [];
     List<List<Container>> allTheRows = [];
@@ -1617,12 +1950,12 @@ class _GameScreenState extends State<GameScreen> {
                 //   style: TextStyle(color: Colors.white, fontSize: 12),
                 // ),
                 ),
-            height: 20,
-            width: 20,
-            margin: EdgeInsets.all(1),
+            height: size,
+            width: size,
+            margin: EdgeInsets.all(padding),
             decoration: BoxDecoration(
                 color: table[i][j] == 0 ? Colors.black : Colors.amberAccent,
-                borderRadius: BorderRadius.circular(3)),
+                borderRadius: BorderRadius.circular(radius)),
           ),
         );
       }
