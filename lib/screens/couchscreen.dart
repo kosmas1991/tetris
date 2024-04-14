@@ -111,7 +111,8 @@ class _CouchScreenState extends State<CouchScreen> {
                                       .delete();
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Delete couch')),
+                                child: Text('Delete couch',
+                                    style: TextStyle(fontSize: 30))),
                           ],
                         )
                       : FutureBuilder(

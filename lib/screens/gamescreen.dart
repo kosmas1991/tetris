@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:tetris/models/piece.dart';
 import 'package:tetris/screens/register_screen.dart';
 import 'package:tetris/screens/winorlosescreen.dart';
-import 'package:tetris/variables/vars.dart' as table_var;
+
 import 'package:vibration/vibration.dart';
 
 class GameScreen extends StatefulWidget {
@@ -31,30 +31,73 @@ class ArrowRightIntent extends Intent {}
 
 class ArrowDownIntent extends Intent {}
 
-List<List<int>> opponentTable = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-];
-
 class _GameScreenState extends State<GameScreen> {
+  List<List<int>> opponentTable = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  List<List<int>> table = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  List<List<int>> table2 = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
   //bool fromSpeedSet = false;
   Map<String, dynamic> couchData = {};
 
@@ -64,6 +107,8 @@ class _GameScreenState extends State<GameScreen> {
   int slowSpeed = 800;
   int fastSpeed = 80;
   Timer ktimer = Timer.periodic(Duration(milliseconds: 1000), (timer) {});
+  Timer timerSmallTables =
+      Timer.periodic(Duration(milliseconds: 1000), (timer) {});
   int counter = 0;
   bool moveRightPressedcont = false;
   bool moveLeftPressedcont = false;
@@ -75,8 +120,7 @@ class _GameScreenState extends State<GameScreen> {
   Column daUI = Column();
   Column daUISmall = Column();
   Column nextPiece = Column();
-  var table = table_var.table;
-  var table2 = table_var.table;
+
   //dummy data
   var tableNextPiece = [
     [0, 0, 0, 0],
@@ -285,43 +329,41 @@ class _GameScreenState extends State<GameScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  widget.isOnline
-                      ? Container()
-                      : Shortcuts(
-                          shortcuts: {
-                            LogicalKeySet(LogicalKeyboardKey.keyR):
-                                RotateIntent(),
-                            LogicalKeySet(LogicalKeyboardKey.arrowLeft):
-                                ArrowLeftIntent(),
-                            LogicalKeySet(LogicalKeyboardKey.arrowRight):
-                                ArrowRightIntent(),
-                            LogicalKeySet(LogicalKeyboardKey.arrowDown):
-                                ArrowDownIntent(),
+                  Shortcuts(
+                    shortcuts: {
+                      LogicalKeySet(LogicalKeyboardKey.keyR): RotateIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+                          ArrowLeftIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.arrowRight):
+                          ArrowRightIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.arrowDown):
+                          ArrowDownIntent(),
+                    },
+                    child: Actions(
+                      actions: {
+                        RotateIntent: CallbackAction<RotateIntent>(
+                          onInvoke: (intent) {
+                            return rotatePiece();
                           },
-                          child: Actions(
-                            actions: {
-                              RotateIntent: CallbackAction<RotateIntent>(
-                                onInvoke: (intent) {
-                                  return rotatePiece();
-                                },
-                              ),
-                              ArrowLeftIntent: CallbackAction<ArrowLeftIntent>(
-                                onInvoke: (intent) {
-                                  return movePieceLeft();
-                                },
-                              ),
-                              ArrowRightIntent:
-                                  CallbackAction<ArrowRightIntent>(
-                                onInvoke: (intent) {
-                                  return movePieceRight();
-                                },
-                              ),
-                              ArrowDownIntent: CallbackAction<ArrowDownIntent>(
-                                  onInvoke: (intent) {
-                                return forcedOneDown();
-                              })
-                            },
-                            child: Row(
+                        ),
+                        ArrowLeftIntent: CallbackAction<ArrowLeftIntent>(
+                          onInvoke: (intent) {
+                            return movePieceLeft();
+                          },
+                        ),
+                        ArrowRightIntent: CallbackAction<ArrowRightIntent>(
+                          onInvoke: (intent) {
+                            return movePieceRight();
+                          },
+                        ),
+                        ArrowDownIntent:
+                            CallbackAction<ArrowDownIntent>(onInvoke: (intent) {
+                          return forcedOneDown();
+                        })
+                      },
+                      child: widget.isOnline
+                          ? Container()
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
@@ -368,8 +410,8 @@ class _GameScreenState extends State<GameScreen> {
                                     )),
                               ],
                             ),
-                          ),
-                        ),
+                    ),
+                  ),
                   SizedBox(
                     height: 20,
                   ),
@@ -576,6 +618,7 @@ class _GameScreenState extends State<GameScreen> {
 
   void reset() {
     ktimer.cancel();
+    timerSmallTables.cancel();
     for (int line = 0; line < 20; line++) {
       for (int number = 0; number < 10; number++) {
         table[line][number] = 0;
@@ -597,6 +640,7 @@ class _GameScreenState extends State<GameScreen> {
   void checkOnlineWin() async {
     if (widget.isOnline) {
       ktimer.cancel();
+      timerSmallTables.cancel();
       await fire
           .collection('couches')
           .doc(widget.couchID)
@@ -608,23 +652,27 @@ class _GameScreenState extends State<GameScreen> {
           if (endHostWon && widget.iAmHost) {
             printError('I (host) WON !!!!!!');
             end = true;
+            timerSmallTables.cancel();
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: true),
             ));
           } else if (endHostWon && !widget.iAmHost) {
             printError('I (guest) LOST !!!!!');
             end = true;
+                  timerSmallTables.cancel();
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: false),
             ));
           } else if (endGuestWon && !widget.iAmHost) {
             end = true;
+                  timerSmallTables.cancel();
             printError('I (guest) WON !!!!!!');
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: true),
             ));
           } else if (endGuestWon && widget.iAmHost) {
             end = true;
+                  timerSmallTables.cancel();
             printError('I (host) LOST !!!!!');
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => WinOrLoseScreen(isWin: false),
@@ -637,8 +685,8 @@ class _GameScreenState extends State<GameScreen> {
 
   void updateSmallTablesEveryxSeconds(int secs) {
     //            UPDATE THE SMALL TABLE every x seconds
-    Timer.periodic(Duration(seconds: secs), (timer) {
-      printError(timer.tick.toString());
+    timerSmallTables = Timer.periodic(Duration(seconds: secs), (timer) {
+      printError(' small tables ticker  ---- >  ${timer.tick.toString()}');
 
       widget.iAmHost
           ? fire
@@ -718,19 +766,25 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void forcedOneDown() {
-    if (end) {
-      return;
-    }
+    // if (end) {
+    //   return;
+    // }
     Vibration.vibrate(duration: 10);
     ktimer.cancel();
 
     bool failed = downOneRow();
     if (failed && counter == 1) {
       end = true;
+      timerSmallTables.cancel();
     }
 
     if (failed) {
-      !end ? gameLoop() : {endScreen(false), Vibration.vibrate(duration: 500)};
+      !end
+          ? gameLoop()
+          : {
+              endScreen(),
+              Vibration.vibrate(duration: 500),
+            };
       ;
     }
     ++counter;
@@ -781,6 +835,7 @@ class _GameScreenState extends State<GameScreen> {
         if (failed && counter == 1) {
           timer.cancel();
           end = true;
+          timerSmallTables.cancel();
           widget.iAmHost
               ? await fire
                   .collection('couches')
@@ -794,9 +849,8 @@ class _GameScreenState extends State<GameScreen> {
 
         if (failed) {
           timer.cancel();
-          !end
-              ? gameLoop()
-              : {endScreen(false), Vibration.vibrate(duration: 500)};
+
+          !end ? gameLoop() : {endScreen(), Vibration.vibrate(duration: 500)};
         }
 
         refresh();
@@ -816,66 +870,57 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  void endScreen(bool isWin) {
-    //print('SHOW TETRIS MESSAGE');
-    for (int i = 0; i < 20; i++) {
-      for (int y = 0; y < 10; y++) {
-        table[i][y] = 0;
+  void endScreen() {
+    if (widget.isOnline) {
+    } else {
+      //print('SHOW TETRIS MESSAGE');
+      for (int i = 0; i < 20; i++) {
+        for (int y = 0; y < 10; y++) {
+          table[i][y] = 0;
+        }
       }
-    }
-    !isWin
-        ? {
-            table[5][0] = 1,
-            table[6][0] = 1,
-            table[7][0] = 1,
-            table[8][0] = 1,
-            table[8][0] = 1,
-            table[9][0] = 1,
-            table[9][1] = 1,
-            table[5][3] = 1,
-            table[6][2] = 1,
-            table[7][2] = 1,
-            table[8][2] = 1,
-            table[9][3] = 1,
-            table[8][4] = 1,
-            table[7][4] = 1,
-            table[6][4] = 1,
-            table[5][7] = 1,
-            table[5][6] = 1,
-            table[5][5] = 1,
-            table[6][5] = 1,
-            table[7][5] = 1,
-            table[7][6] = 1,
-            table[8][6] = 1,
-            table[9][6] = 1,
-            table[9][5] = 1,
-            table[5][9] = 1,
-            table[5][8] = 1,
-            table[6][8] = 1,
-            table[7][8] = 1,
-            table[8][8] = 1,
-            table[9][8] = 1,
-            table[12][3] = 1,
-            table[12][6] = 1,
-            table[15][2] = 1,
-            table[14][3] = 1,
-            table[14][4] = 1,
-            table[14][5] = 1,
-            table[14][6] = 1,
-            table[15][7] = 1,
-          }
-        : {
-            table[12][3] = 1,
-            table[12][6] = 1,
-            table[15][2] = 1,
-            table[14][3] = 1,
-            table[14][4] = 1,
-            table[14][5] = 1,
-            table[14][6] = 1,
-            table[15][7] = 1,
-          };
 
-    refresh();
+      table[5][0] = 1;
+      table[6][0] = 1;
+      table[7][0] = 1;
+      table[8][0] = 1;
+      table[8][0] = 1;
+      table[9][0] = 1;
+      table[9][1] = 1;
+      table[5][3] = 1;
+      table[6][2] = 1;
+      table[7][2] = 1;
+      table[8][2] = 1;
+      table[9][3] = 1;
+      table[8][4] = 1;
+      table[7][4] = 1;
+      table[6][4] = 1;
+      table[5][7] = 1;
+      table[5][6] = 1;
+      table[5][5] = 1;
+      table[6][5] = 1;
+      table[7][5] = 1;
+      table[7][6] = 1;
+      table[8][6] = 1;
+      table[9][6] = 1;
+      table[9][5] = 1;
+      table[5][9] = 1;
+      table[5][8] = 1;
+      table[6][8] = 1;
+      table[7][8] = 1;
+      table[8][8] = 1;
+      table[9][8] = 1;
+      table[12][3] = 1;
+      table[12][6] = 1;
+      table[15][2] = 1;
+      table[14][3] = 1;
+      table[14][4] = 1;
+      table[14][5] = 1;
+      table[14][6] = 1;
+      table[15][7] = 1;
+
+      refresh();
+    }
   }
 
   void setCurrentPiece() async {
