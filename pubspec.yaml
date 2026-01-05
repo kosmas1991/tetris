@@ -41,7 +41,7 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/
-    - .env
+    - env
   
   fonts:
     - family: PressStart2P

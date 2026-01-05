@@ -7,7 +7,7 @@ import 'screens/online_tetris_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "env");
   Bloc.observer = SimpleBlocObserver();
   final HydratedStorage storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
